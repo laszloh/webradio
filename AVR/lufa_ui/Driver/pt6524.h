@@ -23,56 +23,6 @@
 //  Created by Laszlo Hegedues on 21.03.2017.
 //
 
-#include "config.h"
+void pt6524_Init(void);
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-
-#include <avr/io.h>
-#include "utils/io.h"
-#include "utils/spi.h"
-
-#define PT_ADDRESS		0x82	// 41H in the "stupid" datasheet configuration
-
-typedef struct _segment {
-	uint8_t nibble:4;
-} pt6524_seg_t;
-
-typedef struct _frame __attribute__((packed)) {
-	pt6524_seg_t segments[13];
-	uint8_t _res:2;
-	uint8_t cu:1;
-	uint8_t port:3;
-	uint8_t dr:1;
-	uint8_t sc:1;
-	uint8_t bu:1;
-	uint8_t dd:2;
-} pt6524_frame_t;
-
-uint8_t pt6524_init() {
-	pt6524_frame_t frame;
-	
-	// init the SPI
-	spi_init();
-	DDR_PT |= _BV(DDR_PTS);		// and the CS-Line
-	
-	memset(frame, 0, sizeof(pt6524_frame_t));
-	frame.dr = 1;
-	
-	pt6524_write(&buffer);
-}
-
-void pt6524_write(uint8_t *buf) {
-	uint8_t i;
-	
-	// send the address
-	BIT_CLEAR(&PORT_PT, PORT_PTS);
-	spi_transmit(PT_ADDRESS);
-	BIT_SET(&PORT_PT, PORT_PTS);
-	// send the remaining data
-	for(i=0;i<PT_FRAME_SIZE;i++) {
-		spi_transmit(buf[i]);
-	}
-}
-
+void pt6524_wirte_raw(uint16_t *buffer, size_t size, uint16_t segments);

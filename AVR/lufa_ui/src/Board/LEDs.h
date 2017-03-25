@@ -45,7 +45,7 @@
 #define __LEDS_USER_H__
 
 	/* Includes: */
-		#include "Common/Common.h"
+		#include <LUFA/Common/Common.h>
 
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
@@ -60,7 +60,7 @@
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */
-LEDS_PORTD_LEDS			#define LEDS_PORTB_LEDS       (LEDS_LED1)
+			#define LEDS_PORTB_LEDS       (LEDS_LED1)
 			#define LEDS_PORTD_LEDS       (LEDS_LED2)
 	#endif
 	

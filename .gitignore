@@ -32,5 +32,11 @@
 *.dSYM/
 *.su
 
+# Debug folder
+Debug/
+
+# Visual studio generated files
+.vs/
+
 # Documentation files
 Documentation/

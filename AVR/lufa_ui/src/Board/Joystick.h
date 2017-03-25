@@ -90,6 +90,7 @@
 			static inline uint8_t Joystick_GetStatus(void)
 			{
 				// TODO: Return current joystick position data which can be obtained by masking against the JOY_* macros
+				return 0;
 			}
 		#endif
 
