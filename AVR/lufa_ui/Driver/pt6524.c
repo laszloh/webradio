@@ -30,12 +30,11 @@
 #include <string.h>
 
 #include <avr/io.h>
-//#include "io.h"
-#include "spi.h"
+#include <LUFA/Drivers/Peripheral/SPI.h>
 
 #include "pt6524.h"
 
-#define PT_ADDRESS		0x41	// 41H in the "stupid" datasheet configuration
+#define PT_ADDRESS		0x41	// 41H
 #define DDR_PT			DDRB
 #define PT_CS			PORTB3
 #define PORT_PT			PORTB
@@ -59,7 +58,8 @@ void pt6524_Init(void)
     int i;
 	
 	// init the SPI
-	spi_init();
+	SPI_Init(SPI_SPEED_FCPU_DIV_2 | SPI_SCK_LEAD_FALLING | SPI_ORDER_LSB_FIRST |
+			 SPI_SAMPLE_TRAILING | SPI_MODE_MASTER);
 	DDR_PT |= _BV(PT_CS);		// and the CS-Line
 	
 	memset(&frame, 0, sizeof(pt6524_frame_t));
@@ -70,32 +70,36 @@ void pt6524_Init(void)
     }
 }
 
-void pt6524_wirte_raw(uint16_t *buffer, size_t size, uint16_t segments)
+void pt6524_write_raw(uint16_t *buffer, size_t size, uint16_t segments)
 {
     pt6524_frame_t frame;
-    uint8_t packets;
+    uint8_t i, shift = 0;
     uint64_t *p = (uint64_t*)buffer;
-    
-    packets = segments/52;
+	uint64_t prev = 0;
 	
-    for(int i=0; i<packets; i++) {
-		// TODO: repair this messed up fuck
-        if(i)
-            frame.data = (p[i-1] >> (64-12*i)) | (p[i] << 12*i);
-        else
-            frame.data = p[i];
+	memset(&frame, 0, sizeof(pt6524_frame_t));
+	
+    for(i=0; i<segments/52; i++) {
+		frame.data = (prev >> (64-shift)) | (p[i] << shift);
+		shift += 64 - 52;
+		prev = p[i];
+	
 		frame.dd = i & 0x03;
 		pt6524_write(&frame);
     }
 }
 
 void pt6524_write(pt6524_frame_t *buf) {
+	uint8_t i;
+	uint8_t *p = (uint8_t*)buf;
+	
 	// send the address
 	PORT_PT &= ~_BV(PT_CS);
-	spi_byte_tx(PT_ADDRESS);
+	SPI_SendByte(PT_ADDRESS);
 	PORT_PT |= _BV(PT_CS);
 	// send the remaining data
-	spi_buf_tx((uint8_t*)buf, sizeof(pt6524_frame_t));
+	for(i=0; i<sizeof(pt6524_frame_t); i++)
+		SPI_SendByte(p[i]);
 	// disable CS
 	PORT_PT &= ~_BV(PT_CS);
 }

@@ -186,12 +186,14 @@ void ParseCommand(unsigned char c)
     case 'n':
     case 'N':
         ShiftLeftByOne(segments, sizeof(segments));
+		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
         break;
         
     case 's':
     case 'S':
         memset(segments, 0, sizeof(segments));
         segments[0] = 0x01;
+		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
         break;
 		
 	case 'b':
@@ -203,8 +205,6 @@ void ParseCommand(unsigned char c)
     default:
         return;
     }
-    
-    pt6524_wirte_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
 }
 
 void CDC_Task(void)

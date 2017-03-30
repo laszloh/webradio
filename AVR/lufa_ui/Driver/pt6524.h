@@ -25,4 +25,4 @@
 
 void pt6524_Init(void);
 
-void pt6524_wirte_raw(uint16_t *buffer, size_t size, uint16_t segments);
+void pt6524_write_raw(uint16_t *buffer, size_t size, uint16_t segments);
