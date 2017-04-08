@@ -168,7 +168,7 @@ void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t *const C
 	   application blocking while waiting for a host to become ready and read
 	   in the pending data from the USB endpoints.
 	*/
-	bool HostReady = (CDCInterfaceInfo->State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR) != 0;
+	//bool HostReady = (CDCInterfaceInfo->State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR) != 0;
 }
 
 void ShiftLeftByOne(uint16_t *arr, int len)
@@ -182,11 +182,14 @@ void ShiftLeftByOne(uint16_t *arr, int len)
 
 void ParseCommand(unsigned char c)
 {
+	static char buffer[32];
+	
     switch(c) {
     case 'n':
     case 'N':
         ShiftLeftByOne(segments, sizeof(segments));
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
+		sprintf(buffer, "Shifting Bit left...");
         break;
         
     case 's':
@@ -194,17 +197,21 @@ void ParseCommand(unsigned char c)
         memset(segments, 0, sizeof(segments));
         segments[0] = 0x01;
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
+		sprintf(buffer, "Reseting LCD...");
         break;
 		
 	case 'b':
 	case 'B':
 		// toggle backlight
 		backlight_toggle();
+		sprintf(buffer, "Backlight toggle...");
 		break;
         
     default:
         return;
     }
+	
+	CDC_Device_SendString(&VirtualSerial_CDC_Interface, buffer);
 }
 
 void CDC_Task(void)
@@ -221,6 +228,7 @@ void CDC_Task(void)
         uint16_t c = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
         if(c >= 0)
             ParseCommand(c);
+		CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (uint8_t)c);
         bytes--;
     }
 }

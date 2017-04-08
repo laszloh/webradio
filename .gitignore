@@ -34,6 +34,7 @@
 
 # Debug folder
 Debug/
+Release/
 
 # Visual studio generated files
 .vs/
