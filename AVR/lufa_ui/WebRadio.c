@@ -187,9 +187,9 @@ void ParseCommand(unsigned char c)
     switch(c) {
     case 'n':
     case 'N':
-        ShiftLeftByOne(segments, sizeof(segments));
+        ShiftLeftByOne(segments, sizeof(segments)/sizeof(uint16_t));
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
-		sprintf(buffer, "Shifting Bit left...");
+		sprintf(buffer, "Shifting Bit left...\n\r");
         break;
         
     case 's':
@@ -197,14 +197,14 @@ void ParseCommand(unsigned char c)
         memset(segments, 0, sizeof(segments));
         segments[0] = 0x01;
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
-		sprintf(buffer, "Reseting LCD...");
+		sprintf(buffer, "Reseting LCD...\n\r");
         break;
 		
 	case 'b':
 	case 'B':
 		// toggle backlight
 		backlight_toggle();
-		sprintf(buffer, "Backlight toggle...");
+		sprintf(buffer, "Backlight toggle...\n\r");
 		break;
         
     default:
@@ -229,6 +229,7 @@ void CDC_Task(void)
         if(c >= 0)
             ParseCommand(c);
 		CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (uint8_t)c);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, "\n\r");
         bytes--;
     }
 }

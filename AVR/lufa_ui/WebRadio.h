@@ -52,7 +52,7 @@
 
 	/* Macros: */
 		/** LED mask for the library LED driver, to indicate that the USB interface is not ready. */
-		#define LEDMASK_USB_NOTREADY      LEDS_LED1
+		#define LEDMASK_USB_NOTREADY      (0)
 
 		/** LED mask for the library LED driver, to indicate that the USB interface is enumerating. */
 		#define LEDMASK_USB_ENUMERATING  (LEDS_LED1)
