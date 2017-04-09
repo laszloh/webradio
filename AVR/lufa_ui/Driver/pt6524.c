@@ -35,9 +35,9 @@
 #include "pt6524.h"
 
 #define PT_ADDRESS		0x41	// 41H
-#define DDR_PT			DDRB
-#define PT_CS			PORTB3
-#define PORT_PT			PORTB
+#define DDR_PT			DDRE
+#define PT_CS			PORTE6
+#define PORT_PT			PORTE
 
 typedef struct _frame {
 	uint8_t dd:2;
