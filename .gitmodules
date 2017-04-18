@@ -1,3 +1,6 @@
 [submodule "lib/lufa"]
 	path = AVR/lufa_ui/src/lufa
 	url = https://github.com/abcminiuser/lufa.git
+[submodule "AVR/lufa_ui/src/irmp"]
+	path = AVR/lufa_ui/src/irmp
+	url = https://github.com/svn2github/irmp.git

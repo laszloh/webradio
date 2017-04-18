@@ -35,6 +35,10 @@
  */
 
 #include "WebRadio.h"
+
+#include "IRMPconfig.h"
+#include "irmp.h"
+
 #include "Driver/pt6524.h"
 #include "Driver/backlight.h"
 
