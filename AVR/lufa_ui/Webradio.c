@@ -34,9 +34,9 @@
  *  is responsible for the initial application hardware configuration.
  */
 
-#include "WebRadio.h"
+#include "Webradio.h"
 
-#include "IRMPconfig.h"
+#undef CONCAT
 #include "irmp.h"
 
 #include "Driver/pt6524.h"
@@ -81,6 +81,20 @@ static FILE USBSerialStream;
 
 uint16_t segments[ PT6524_LCD_SEGMENTS / sizeof(uint16_t) ];
 
+
+static void timer1_Init (void)
+{
+	OCR1A = (F_CPU / F_INTERRUPTS) - 1;		// compare value: 1/15000 of CPU frequency
+	TCCR1B = _BV(WGM12) | _BV(CS10);		// switch CTC Mode on, set prescaler to 1
+	TIMSK1 = _BV(OCIE1A);					// OCIE1A: Interrupt by timer compare
+}
+
+// Timer1 output compare A interrupt service routine, called every 1/15000 sec
+ISR(TIMER1_COMPA_vect)
+{
+	(void) irmp_ISR();			// call irmp ISR
+}
+
 /** Main program entry point. This routine configures the hardware required by the application, then
  *  enters a loop to run the application tasks in sequence.
  */
@@ -97,6 +111,8 @@ int main(void)
 	for (;;)
 	{
         CDC_Task();
+		
+		IMRP_Task();
         
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
@@ -116,6 +132,9 @@ void SetupHardware(void)
 	/* Hardware Initialization */
 	Backlight_Init();
 	pt6524_Init();
+	
+	irmp_init();
+	timer1_Init();
 
 	LEDs_Init();
 	USB_Init();
@@ -186,14 +205,12 @@ void ShiftLeftByOne(uint16_t *arr, int len)
 
 void ParseCommand(unsigned char c)
 {
-	static char buffer[32];
-	
     switch(c) {
     case 'n':
     case 'N':
         ShiftLeftByOne(segments, sizeof(segments)/sizeof(uint16_t));
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
-		sprintf(buffer, "Shifting Bit left...\n\r");
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Shifting Bit left...\n\r"));
         break;
         
     case 's':
@@ -201,21 +218,20 @@ void ParseCommand(unsigned char c)
         memset(segments, 0, sizeof(segments));
         segments[0] = 0x01;
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
-		sprintf(buffer, "Reseting LCD...\n\r");
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Reseting LCD...\n\r"));
         break;
 		
 	case 'b':
 	case 'B':
 		// toggle backlight
 		backlight_toggle();
-		sprintf(buffer, "Backlight toggle...\n\r");
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Backlight toggle...\n\r"));
 		break;
         
     default:
         return;
     }
 	
-	CDC_Device_SendString(&VirtualSerial_CDC_Interface, buffer);
 }
 
 void CDC_Task(void)
@@ -233,7 +249,44 @@ void CDC_Task(void)
         if(c >= 0)
             ParseCommand(c);
 		CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (uint8_t)c);
-		CDC_Device_SendString(&VirtualSerial_CDC_Interface, "\n\r");
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\n\r"));
         bytes--;
     }
+}
+
+static char *itoh (char * buf, uint8_t digits, uint16_t number)
+{
+	for (buf[digits] = 0; digits--; number >>= 4)
+	{
+		buf[digits] = "0123456789ABCDEF"[number & 0x0F];
+	}
+	return buf;
+}
+
+void IMRP_Task(void)
+{
+	IRMP_DATA irmp_data;
+	char buf[5];
+	
+	if (irmp_get_data (&irmp_data)) {
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("protocol: 0x"));
+		itoh(buf, 2, irmp_data.protocol);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("   "));
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, (const char*)pgm_read_word (&(irmp_protocol_names[irmp_data.protocol])));
+
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("   address: 0x"));
+		itoh (buf, 4, irmp_data.address);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
+
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("   command: 0x"));
+		itoh (buf, 4, irmp_data.command);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
+
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("   flags: 0x"));
+		itoh (buf, 2, irmp_data.flags);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
+
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\r\n"));
+	}
 }

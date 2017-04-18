@@ -213,56 +213,47 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <AvrGcc>
-        <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega32u4"</avrgcc.common.Device>
-        <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
-        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>NDEBUG</Value>
-            <Value>ARCH=ARCH_AVR8</Value>
-            <Value>F_CPU=16000000UL</Value>
-            <Value>USE_LUFA_CONFIG_HEADER</Value>
-            <Value>F_USB=16000000UL</Value>
-            <Value>BOARD=BOARD_USER</Value>
-          </ListValues>
-        </avrgcc.compiler.symbols.DefSymbols>
-        <avrgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../src/LUFA</Value>
-            <Value>../src</Value>
-            <Value>../src/config</Value>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
-          </ListValues>
-        </avrgcc.compiler.directories.IncludePaths>
-        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-        <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
-        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-        <avrgcc.compiler.miscellaneous.OtherFlags>-mrelax -std=gnu99 -fno-strict-aliasing -fno-jump-tables</avrgcc.compiler.miscellaneous.OtherFlags>
-        <avrgcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </avrgcc.linker.libraries.Libraries>
-        <avrgcc.linker.miscellaneous.LinkerFlags>-Wl,--relax</avrgcc.linker.miscellaneous.LinkerFlags>
-        <avrgcc.assembler.general.AssemblerFlags>-DARCH=ARCH_AVR8 -DBOARD=BOARD_NONE -DF_CPU=16000000UL -DF_USB=16000000UL -DUSE_LUFA_CONFIG_HEADER</avrgcc.assembler.general.AssemblerFlags>
-        <avrgcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>../src/LUFA</Value>
-            <Value>../src</Value>
-            <Value>../src/config</Value>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
-          </ListValues>
-        </avrgcc.assembler.general.IncludePaths>
-      </AvrGcc>
+  <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega32u4"</avrgcc.common.Device>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols><ListValues>
+  <Value>ARCH=ARCH_AVR8</Value>
+  <Value>F_CPU=16000000UL</Value>
+  <Value>USE_LUFA_CONFIG_HEADER</Value>
+  <Value>F_USB=16000000UL</Value>
+  <Value>BOARD=BOARD_USER</Value>
+  <Value>NDEBUG</Value>
+</ListValues></avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths><ListValues>
+  <Value>../src</Value>
+  <Value>../src/config</Value>
+  <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
+  <Value>../src/LUFA</Value>
+</ListValues></avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.compiler.miscellaneous.OtherFlags>-mrelax -std=gnu99 -fno-strict-aliasing -fno-jump-tables</avrgcc.compiler.miscellaneous.OtherFlags>
+  <avrgcc.linker.libraries.Libraries><ListValues><Value>libm</Value></ListValues></avrgcc.linker.libraries.Libraries>
+  <avrgcc.linker.miscellaneous.LinkerFlags>-Wl,--relax</avrgcc.linker.miscellaneous.LinkerFlags>
+  <avrgcc.assembler.general.AssemblerFlags>-DARCH=ARCH_AVR8 -DBOARD=BOARD_NONE -DF_CPU=16000000UL -DF_USB=16000000UL -DUSE_LUFA_CONFIG_HEADER</avrgcc.assembler.general.AssemblerFlags>
+  <avrgcc.assembler.general.IncludePaths><ListValues><Value>../src/LUFA</Value><Value>../src</Value><Value>../src/config</Value><Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value></ListValues></avrgcc.assembler.general.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+</AvrGcc>
     </ToolchainSettings>
+    <UsesExternalMakeFile>False</UsesExternalMakeFile>
+    <OutputDirectory>
+    </OutputDirectory>
+    <BuildTarget>all</BuildTarget>
+    <CleanTarget>clean</CleanTarget>
+    <ExternalMakeFilePath>D:\development\Projekte\webradio\AVR\lufa_ui\makefile</ExternalMakeFilePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
@@ -276,49 +267,41 @@
   <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
   <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>DEBUG</Value>
-      <Value>ARCH=ARCH_AVR8</Value>
-      <Value>F_CPU=16000000UL</Value>
-      <Value>USE_LUFA_CONFIG_HEADER</Value>
-      <Value>F_USB=16000000UL</Value>
-      <Value>BOARD=BOARD_USER</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>../src/lufa</Value>
-      <Value>../src</Value>
-      <Value>../src/config</Value>
-      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
-    </ListValues>
-  </avrgcc.compiler.directories.IncludePaths>
-  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.symbols.DefSymbols><ListValues>
+  <Value>ARCH=ARCH_AVR8</Value>
+  <Value>F_CPU=16000000UL</Value>
+  <Value>USE_LUFA_CONFIG_HEADER</Value>
+  <Value>F_USB=16000000UL</Value>
+  <Value>BOARD=BOARD_USER</Value>
+  <Value>DEBUG</Value>
+</ListValues></avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths><ListValues>
+  <Value>../src</Value>
+  <Value>../src/config</Value>
+  <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
+  <Value>../src/lufa</Value>
+  <Value>../src/irmp</Value>
+</ListValues></avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
   <avrgcc.compiler.miscellaneous.OtherFlags>-mrelax -std=gnu99 -fno-strict-aliasing -fno-jump-tables</avrgcc.compiler.miscellaneous.OtherFlags>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.linker.libraries.Libraries><ListValues><Value>libm</Value></ListValues></avrgcc.linker.libraries.Libraries>
   <avrgcc.linker.miscellaneous.LinkerFlags>-Wl,--relax</avrgcc.linker.miscellaneous.LinkerFlags>
   <avrgcc.assembler.general.AssemblerFlags>-DARCH=ARCH_AVR8 -DBOARD=BOARD_NONE -DF_CPU=16000000UL -DF_USB=16000000UL -DUSE_LUFA_CONFIG_HEADER</avrgcc.assembler.general.AssemblerFlags>
-  <avrgcc.assembler.general.IncludePaths>
-    <ListValues>
-      <Value>../src/LUFA</Value>
-      <Value>../src</Value>
-      <Value>../src/config</Value>
-      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
-    </ListValues>
-  </avrgcc.assembler.general.IncludePaths>
+  <avrgcc.assembler.general.IncludePaths><ListValues><Value>../src/LUFA</Value><Value>../src</Value><Value>../src/config</Value><Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value></ListValues></avrgcc.assembler.general.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
 </AvrGcc>
     </ToolchainSettings>
+    <UsesExternalMakeFile>False</UsesExternalMakeFile>
+    <OutputDirectory>
+    </OutputDirectory>
+    <BuildTarget>all</BuildTarget>
+    <CleanTarget>clean</CleanTarget>
+    <ExternalMakeFilePath>D:\development\Projekte\webradio\AVR\lufa_ui\makefile</ExternalMakeFilePath>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Driver\" />
@@ -326,6 +309,8 @@
     <Folder Include="src\" />
     <Folder Include="src\Board\" />
     <Folder Include="src\config\" />
+    <Folder Include="src\irmp\" />
+    <Folder Include="src\irmp\IR-Data\" />
     <Folder Include="src\LUFA\" />
     <Folder Include="src\LUFA\LUFA\" />
     <Folder Include="src\LUFA\LUFA\Common\" />
@@ -369,12 +354,39 @@
     <Compile Include="src\Board\LEDs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="WebRadio.c">
+    <Compile Include="src\config\IRMPconfig.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="WebRadio.h">
+    <Compile Include="src\irmp\irmp.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\irmp\irmp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\irmp\irmpconfig.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\irmp\irmpextlog.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\irmp\irmpextlog.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\irmp\irmpprotocols.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\irmp\irmpsystem.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Webradio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Webradio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="makefile">
+      <SubType>compile</SubType>
+    </None>
     <None Include="src\asf.h">
       <SubType>compile</SubType>
     </None>
@@ -391,6 +403,312 @@
       <SubType>compile</SubType>
     </None>
     <None Include="HostTestApp\test_generic_hid_winusb.py">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\3xNEC3xAPPLE.log.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\a1tvbox-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\a1tvbox-20kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\acp24-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\apple-unibody-remote.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\apple.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\bose_wave_system_15khz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\bo_beolink1000-10kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\bo_beolink1000-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Dbox.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\denon-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\denon-rc-176-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\denon-rc-176-repeat-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\denon.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\denon1_kurz_10khz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\denon3_kurz_10khz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\DK_Digital.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\elta_radio.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\fdc-20kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\fdc.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\fdc2-20kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Grundig_TP715.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Grundig_TP715_lange.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Grundig_TP715_SatTV.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Grundig_TP715_Video.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\irc-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\jvc-nec.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\jvc-rm-rk250-10kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\jvc.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\kaseikyo-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\kathrein-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Kathrein-UFS-912-Remote.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\lg-air-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Matsushita.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\matsushita1-15kHz">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\matsushita2-15kHz">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\merlin-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\nec-repetition.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\nec-skymaster-dt500.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\nec.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\nikon.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Nokia.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\nubert-subwoofer.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\orion_vcr_07660BM070.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\ortek-hama-10kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\panasonic-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Panasonic-Blue-Ray.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\panasonic-scan.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\panasonic-vcr-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\panasonic_DVD_N2QAYB000333.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\pentax-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc-car-20kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc-car.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc5-philipps-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\RC5-Taste.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc5.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc5x-79.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc5x.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc6-hold.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc6.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rc6a-siemens-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\rcmm-20kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\recs80-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\roomba-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\s100-56-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\saa3004-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\saa3004-20kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\samsung-br-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\samsung32-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\samsung32-tv-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\samsung48-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Samsung_DVD_Rec_00062C.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Samsung_TV.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\sharp-denon.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\sharp-denon2.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\sharp_15khz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\sharp_kurz_10khz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\sharp_lang_10khz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Siemens-Gigaset-M740AV-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Sony-RM-S-310.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\sony-rm-s311.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Sony-RM-U305C.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Sony-RM-X151.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Sony-RMT-D142P-DVD.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Sony-RMT-V406.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\sony-television-service-commander.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Sony_Bravia_RM-ED0009_new.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Sony_RM-S315_lange.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\speaker-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\t-home-mediareceiver-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\t-home-mediareceiver.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\technics-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\telefunken-1560-20kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\test-suite.sh">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\thomson-mb100-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\tp400vt-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\universal-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\ventilator-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\vincent-flash-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\xbox360-10kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\xbox360-15kHz.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\irmp\IR-Data\Yamaha-RAV388.txt">
       <SubType>compile</SubType>
     </None>
     <None Include="src\LUFA\LUFA\Drivers\USB\Core\EndpointStream.h">
