@@ -20,7 +20,7 @@ OPTIMIZATION = s
 TARGET       = Webradio
 SRC          = $(TARGET).c Descriptors.c Driver/pt6524.c src/irmp/irmp.c  $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH    = src/lufa/LUFA
-CC_FLAGS     = -flto -DUSE_LUFA_CONFIG_HEADER -Isrc/config/ -Isrc -Isrc/irmp
+CC_FLAGS     = -flto -DIRMP_USE_AS_LIB -DUSE_LUFA_CONFIG_HEADER -Isrc/config/ -Isrc -Isrc/irmp -include "global.h"
 LD_FLAGS     = -flto -Os
 
 # Default target
