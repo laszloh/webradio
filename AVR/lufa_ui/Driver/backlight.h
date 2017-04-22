@@ -6,39 +6,20 @@
  */ 
 
 
-#ifndef INCFILE1_H_
-#define INCFILE1_H_
+#ifndef BACKLIGHT_H_
+#define BACKLIGHT_H_
 
-#include <avr/io.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include "gpio.h"
 
-#define BACKLIGHT_DDR	DDRB
-#define BACKLIGHT_PORT	PORTB
-#define BACKLIGHT		PORTB1
+#define BACKLIGHT					gpio_sfr(E, 6)
 
-inline void Backlight_Init(void) __attribute__((always_inline));
-inline void Backlight_Init(void)
-{
-	BACKLIGHT_DDR |= _BV(BACKLIGHT);
-}
+#define backlight_Init()			gpio_direction(BACKLIGHT, GPIO_OUTPUT)
 
-inline void backlight_change(bool state) __attribute__((always_inline));
-inline void backlight_change(bool state) 
-{
-	if(state)
-		BACKLIGHT_PORT |= _BV(BACKLIGHT);
-	else
-		BACKLIGHT_PORT &= ~_BV(BACKLIGHT);
-}
+#define backlight_change(state)		gpio_write(BACKLIGHT, !state)
 
-#define backlight_set()			backlight_change(true)
-#define backlight_clear()		backlight_change(false)
+#define backlight_toggle()			gpio_toggle(BACKLIGHT)
 
-inline void backlight_toggle(void) __attribute__((always_inline));
-inline void backlight_toggle(void)
-{
-	BACKLIGHT_PORT ^= _BV(BACKLIGHT);
-}
+#define backlight_set()				backlight_change(true)
+#define backlight_clear()			backlight_change(false)
 
-#endif /* INCFILE1_H_ */
+#endif /* BACKLIGHT_H_ */

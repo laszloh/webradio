@@ -44,5 +44,24 @@
 #define _APP_CONFIG_H_
 
 	#define GENERIC_REPORT_SIZE       8
+	
+	#define IR_PORT		PORTC
+	#define IR_BIT		PC6
+	
+	#define BL_PORT		PORTE
+	#define BL_BIT		PE6
+	
+	#define PWR_PORT	PORTB
+	#define PWR_BIT		PB6
+
+	#define SCR_PORT	PORTB
+	#define SCR_BIT		PB5
+
+	#define PRG_PORT	PORTB
+	#define PRG_BIT		PB4
+
+	#define BAN_PORT	PORTF
+	#define BAN_BIT		PF4
+	#define BAN_AN		MUX4
 
 #endif

@@ -45,7 +45,6 @@
 #define __BUTTONS_USER_H__
 
 	/* Includes: */
-		// TODO: Add any required includes here
 
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)

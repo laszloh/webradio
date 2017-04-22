@@ -33,12 +33,13 @@
 #include <LUFA/Drivers/Peripheral/SPI.h>
 
 #include "pt6524.h"
+#include "gpio.h"
 
 #define PT_ADDRESS		0x41	// 41H
-#define DDR_PT			DDRE
-#define PT_CS			PORTE6
-#define PORT_PT			PORTE
 
+#define CHIPSEL			gpio_sfr(D,7)
+
+/*
 typedef struct _frame {
 	uint8_t dd:2;
 	uint8_t bu:1;
@@ -49,8 +50,20 @@ typedef struct _frame {
 	uint8_t _res:2;
 	uint64_t data:52;
 }  __attribute__((packed)) pt6524_frame_t;
+*/
+typedef struct _frame {
+	uint64_t data:52;
+	uint8_t _res:2;
+	uint8_t cu:1;
+	uint8_t port:4;
+	uint8_t dr:1;
+	uint8_t sc:1;
+	uint8_t bu:1;
+	uint8_t dd:2;
+}  __attribute__((packed)) pt6524_frame_t;
 
 static void pt6524_write(pt6524_frame_t *buf);
+static void pt6524_framesetup(pt6524_frame_t *frame);
 
 void pt6524_Init(void)
 {
@@ -60,12 +73,12 @@ void pt6524_Init(void)
 	// init the SPI
 	SPI_Init(SPI_SPEED_FCPU_DIV_2 | SPI_SCK_LEAD_FALLING | SPI_ORDER_LSB_FIRST |
 			 SPI_SAMPLE_TRAILING | SPI_MODE_MASTER);
-	DDR_PT |= _BV(PT_CS);		// and the CS-Line
+	gpio_direction(CHIPSEL, true);
 	
-	memset(&frame, 0, sizeof(pt6524_frame_t));
-	frame.dr = 1;
+	pt6524_framesetup(&frame);
 	
     for(i=0; i < 4; i++) {
+		frame.dd = i;
         pt6524_write(&frame);
     }
 }
@@ -77,11 +90,10 @@ void pt6524_write_raw(uint16_t *buffer, size_t size, uint16_t segments)
     uint64_t *p = (uint64_t*)buffer;
 	uint64_t prev = 0;
 	
-	memset(&frame, 0, sizeof(pt6524_frame_t));
+	pt6524_framesetup(&frame);
 	
     for(i=0; i<segments/52; i++) {
-		frame.data = (prev >> (64-shift)) | (p[i] << shift);
-		shift += 64 - 52;
+		frame.data = p[i];
 		prev = p[i];
 	
 		frame.dd = i & 0x03;
@@ -89,18 +101,24 @@ void pt6524_write_raw(uint16_t *buffer, size_t size, uint16_t segments)
     }
 }
 
-void pt6524_write(pt6524_frame_t *buf) {
+static void pt6524_framesetup(pt6524_frame_t *frame)
+{
+	memset(frame, 0, sizeof(pt6524_frame_t));
+	frame->dr = 1;
+}
+
+static void pt6524_write(pt6524_frame_t *buf) {
 	uint8_t i;
 	uint8_t *p = (uint8_t*)buf;
 	
 	// send the address
-	PORT_PT &= ~_BV(PT_CS);
+	gpio_write(CHIPSEL, false);
 	SPI_SendByte(PT_ADDRESS);
-	PORT_PT |= _BV(PT_CS);
+	gpio_write(CHIPSEL, true);
 	// send the remaining data
 	for(i=0; i<sizeof(pt6524_frame_t); i++)
 		SPI_SendByte(p[i]);
 	// disable CS
-	PORT_PT &= ~_BV(PT_CS);
+	gpio_write(CHIPSEL, false);
 }
 
