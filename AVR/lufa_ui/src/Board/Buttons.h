@@ -45,6 +45,7 @@
 #define __BUTTONS_USER_H__
 
 	/* Includes: */
+	#include <avr/io.h>
 
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
@@ -59,25 +60,44 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** Button mask for the first button on the board. */
-			#define BUTTONS_BUTTON1          // TODO: Add mask for first board button here
+			#define BUTTONS_POWER		_BV(PORTB6)
+			#define BUTTONS_SOURCE		_BV(PORTB5)
+			#define BUTTONS_PROGRAM		_BV(PORTB4)
+			#define BUTTONS_PHYSICAL	(BUTTONS_POWER | BUTTONS_SOURCE | BUTTONS_PROGRAM)
+			
+			#define ADC_DELTA			8
+			
+			#define BUTTONS_ADC_PRESETP	_BV(ADC_DELTA+0)
+			#define BUTTONS_ADC_PRESETN	_BV(ADC_DELTA+1)
+			#define BUTTONS_ADC_DBB		_BV(ADC_DELTA+2)
+			#define BUTTONS_ADC_VOLP	_BV(ADC_DELTA+3)
+			#define BUTTONS_ADC_VOLN	_BV(ADC_DELTA+4)
+			
+			#define BUTTONS_ADC_SKIPN	_BV(ADC_DELTA+5)
+			#define BUTTONS_ADC_STOP	_BV(ADC_DELTA+6)
+			#define BUTTONS_ADC_PLAY	_BV(ADC_DELTA+7)
+			#define BUTTONS_ADC_SKIPP	_BV(ADC_DELTA+8)
+			#define BUTTONS_ADC_REP		_BV(ADC_DELTA+9)
+			
+			#define MAX_CHECKS			10
 
 		/* Inline Functions: */
 		#if !defined(__DOXYGEN__)
-			static inline void Buttons_Init(void)
-			{
-				// TODO: Initialize the appropriate port pins as an inputs here, with pull-ups
-			}
+		
+			inline void Buttons_Init(void);
 
-			static inline void Buttons_Disable(void)
-			{
-				// TODO: Clear the appropriate port pins as high impedance inputs here
-			}
+			inline void Buttons_Disable(void);
+			
+			void Buttons_Debounce(void);
 
-			static inline uint8_t Buttons_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
-			static inline uint8_t Buttons_GetStatus(void)
-			{
-				// TODO: Return current button status here, debounced if required
-			}
+			inline uint8_t Buttons_GetStatus(uint32_t button);
+			
+			inline uint8_t Buttons_Pressed(uint32_t button);
+
+			inline uint8_t Buttons_Released(uint32_t button);
+			
+			uint32_t getAdcButton(void);
+			
 		#endif
 
 	/* Disable C linkage for C++ Compilers: */

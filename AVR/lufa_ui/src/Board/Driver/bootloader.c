@@ -34,9 +34,12 @@
 #include <LUFA/Common/Common.h>
 #include <LUFA/Drivers/USB/USB.h>
 
-#define MagicBootKey (*(uint16_t *)(RAMEND-1))
+#define Boot_Key (*(uint16_t *)(RAMEND-1))
 
-#define MAGIC_BOOT_KEY            0x7777
+#define FLASH_SIZE_BYTES  0x8000
+#define BOOTLOADER_SEC_SIZE_BYTES 0x1000
+
+#define MAGIC_BOOT_KEY            0xDC42
 #define BOOTLOADER_START_ADDRESS  ((FLASH_SIZE_BYTES - BOOTLOADER_SEC_SIZE_BYTES) >> 1)
 
 void Bootloader_Jump_Check(void) ATTR_INIT_SECTION(3);

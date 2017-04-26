@@ -39,11 +39,11 @@
 #undef CONCAT
 #include "irmp.h"
 
-#include "Driver/pt6524.h"
-#include "Driver/backlight.h"
-#include "Driver/gpio.h"
+#include "Board/Driver/pt6524.h"
+#include "Board/Driver/backlight.h"
+#include "Board/Driver/gpio.h"
 
-#include "Driver/bootloader.h"
+#include "Board/Driver/bootloader.h"
 
 /** LUFA CDC Class driver interface configuration and state information. This structure is
  *  passed to all CDC Class driver functions, so that multiple instances of the same class
@@ -118,6 +118,7 @@ static void timer1_Init (void)
 ISR(TIMER1_COMPA_vect)
 {
 	(void) irmp_ISR();			// call irmp ISR
+	Buttons_Debounce();
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
@@ -292,6 +293,12 @@ void ParseCommand(unsigned char c)
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Enabling all segments...\n\r"));
 		break;
+		
+	case 'p':
+	case 'P':
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Entering bootloader...\n\r"));
+		Jump_To_Bootloader();
+		break;
         
     default:
         return;
@@ -301,24 +308,37 @@ void ParseCommand(unsigned char c)
 
 void CDC_Task(void)
 {
-    uint16_t bytes;
-	char buf[16];
-	static uint16_t lastAdc = 0;
-	static uint16_t adcsum = 0;
-	static uint8_t cnt = 0;
+    uint32_t bytes;
+	char buf[32];
+	uint16_t adcButton = 0;
     
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
         return;
 		
-#if 0
-	if(!gpio_read(BUTTON_PWR))
+	if(Buttons_Pressed(BUTTONS_POWER))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    pwr pressed\n\r"));
-	if(!gpio_read(BUTTON_SCR))
-		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    scr pressed\n\r"));
-	if(!gpio_read(BUTTON_PRG))
-		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    prg pressed\n\r"));
+	else if(Buttons_Released(BUTTONS_POWER))
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    pwr released\n\r"));
 		
+	if(Buttons_Pressed(BUTTONS_SOURCE))
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    scr pressed\n\r"));
+	else if(Buttons_Released(BUTTONS_SOURCE))
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    scr released\n\r"));
+		
+	if(Buttons_Pressed(BUTTONS_PROGRAM))
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    prg pressed\n\r"));
+	else if(Buttons_Released(BUTTONS_PROGRAM))
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    prg released\n\r"));
+	
+	adcButton = getAdcButton();
+	if(adcButton > 0x00) {
+		sprintf(buf, "adc: 0x%08x\n\r", adcButton);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
+	}
+	
+		
+#if 0
 	if(ADCSRA & _BV(ADIF)) {
 		uint16_t adc = ADCH;
 		ADCSRA |= _BV(ADIF);
@@ -344,10 +364,11 @@ void CDC_Task(void)
     
     while(bytes > 0) {
         uint16_t c = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
-        if(c >= 0)
+        if(c >= 0) {
+			CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (uint8_t)c);
+			CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\n\r"));
             ParseCommand(c);
-		CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (uint8_t)c);
-		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\n\r"));
+		}
         bytes--;
     }
 }

@@ -273,9 +273,9 @@
     </ExternalMakeFilePath>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Driver\" />
     <Folder Include="src\" />
     <Folder Include="src\Board\" />
+    <Folder Include="src\Board\Driver\" />
     <Folder Include="src\config\" />
     <Folder Include="src\irmp\" />
     <Folder Include="src\irmp\IR-Data\" />
@@ -298,25 +298,40 @@
     <Compile Include="Descriptors.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Driver\backlight.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Driver\gpio.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Driver\pt6524.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Driver\pt6524.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\Board\Board.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Buttons.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\Board\Buttons.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\Board\Dataflash.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\adc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\adc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\backlight.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\bootloader.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\bootloader.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\gpio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\pt6524.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Board\Driver\pt6524.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\Board\Joystick.h">
@@ -358,6 +373,9 @@
     <Compile Include="Webradio.h">
       <SubType>compile</SubType>
     </Compile>
+    <None Include="makefile.linux">
+      <SubType>compile</SubType>
+    </None>
     <None Include="src\asf.h">
       <SubType>compile</SubType>
     </None>
