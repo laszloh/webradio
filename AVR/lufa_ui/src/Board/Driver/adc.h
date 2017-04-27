@@ -56,16 +56,20 @@ typedef enum _prescale {
 	CDIV_128
 } prescale_t;
 
+typedef enum _resultion {
+	RES_10BIT = 0,
+	RES_8BIT
+} resolution_t;
+
 typedef struct _adc {
 	uint8_t channel;
 	vref_t vref;
 	prescale_t divider;
+	resolution_t resolution;
 	uint8_t samples;
 } adc_t;
 
 void adc_init(void);
-
-uint16_t adc_read(adc_t adc);
 
 int8_t adc_register_channel(adc_t adc);
 

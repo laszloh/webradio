@@ -310,7 +310,7 @@ void CDC_Task(void)
 {
     uint32_t bytes;
 	char buf[32];
-	uint16_t adcButton = 0;
+	uint8_t adcButton;
     
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -331,12 +331,10 @@ void CDC_Task(void)
 	else if(Buttons_Released(BUTTONS_PROGRAM))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    prg released\n\r"));
 	
-	adcButton = getAdcButton();
-	if(adcButton > 0x00) {
-		sprintf(buf, "adc: 0x%08x\n\r", adcButton);
+	if(get_key_press()) {
+		sprintf(buf, "adc: 0x%02X\n\r"), get_key_state();
 		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
 	}
-	
 		
 #if 0
 	if(ADCSRA & _BV(ADIF)) {

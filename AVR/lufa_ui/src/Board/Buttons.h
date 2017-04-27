@@ -65,19 +65,32 @@
 			#define BUTTONS_PROGRAM		_BV(PORTB4)
 			#define BUTTONS_PHYSICAL	(BUTTONS_POWER | BUTTONS_SOURCE | BUTTONS_PROGRAM)
 			
-			#define ADC_DELTA			8
+			#define ADC_DELTA	8
+			#define PRESETP		0
+			#define PRESETN		1
+			#define VOLN		2
+			#define VOLP		3
+			#define DBB			4
+			#define REP			5
+			#define SKIPP		6
+			#define PLAY		7
+			#define STOP		8
+			#define SKIPN		9
 			
-			#define BUTTONS_ADC_PRESETP	_BV(ADC_DELTA+0)
-			#define BUTTONS_ADC_PRESETN	_BV(ADC_DELTA+1)
-			#define BUTTONS_ADC_DBB		_BV(ADC_DELTA+2)
-			#define BUTTONS_ADC_VOLP	_BV(ADC_DELTA+3)
-			#define BUTTONS_ADC_VOLN	_BV(ADC_DELTA+4)
+			#define BUTTONS_ADC_PRESETP	_BV(ADC_DELTA+PRESETP)
+			#define BUTTONS_ADC_PRESETN	_BV(ADC_DELTA+PRESETN)
+			#define BUTTONS_ADC_VOLN	_BV(ADC_DELTA+VOLN)
+			#define BUTTONS_ADC_VOLP	_BV(ADC_DELTA+VOLP)
+			#define BUTTONS_ADC_DBB		_BV(ADC_DELTA+DBB)
+			#define BUTTONS_ADC_REP		_BV(ADC_DELTA+REP)
+			#define BUTTONS_ADC_SKIPP	_BV(ADC_DELTA+SKIPP)
+			#define BUTTONS_ADC_PLAY	_BV(ADC_DELTA+PLAY)
+			#define BUTTONS_ADC_STOP	_BV(ADC_DELTA+STOP)
+			#define BUTTONS_ADC_SKIPN	_BV(ADC_DELTA+SKIPN)
+			#define BUTTONS_ADC			(BUTTONS_ADC_PRESETP | BUTTONS_ADC_PRESETN | BUTTONS_ADC_VOLN | BUTTONS_ADC_VOLP | \
+										 BUTTONS_ADC_DBB | BUTTONS_ADC_REP | BUTTONS_ADC_SKIPP | BUTTONS_ADC_PLAY \
+										 BUTTONS_ADC_STOP | BUTTONS_ADC_SKIPN)		
 			
-			#define BUTTONS_ADC_SKIPN	_BV(ADC_DELTA+5)
-			#define BUTTONS_ADC_STOP	_BV(ADC_DELTA+6)
-			#define BUTTONS_ADC_PLAY	_BV(ADC_DELTA+7)
-			#define BUTTONS_ADC_SKIPP	_BV(ADC_DELTA+8)
-			#define BUTTONS_ADC_REP		_BV(ADC_DELTA+9)
 			
 			#define MAX_CHECKS			10
 
@@ -85,8 +98,6 @@
 		#if !defined(__DOXYGEN__)
 		
 			inline void Buttons_Init(void);
-
-			inline void Buttons_Disable(void);
 			
 			void Buttons_Debounce(void);
 
@@ -96,7 +107,10 @@
 
 			inline uint8_t Buttons_Released(uint32_t button);
 			
-			uint32_t getAdcButton(void);
+			uint8_t get_key_press(void);
+
+			uint8_t get_key_state(void);
+
 			
 		#endif
 
