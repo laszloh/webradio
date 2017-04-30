@@ -46,6 +46,8 @@
 
 	/* Includes: */
 	#include <avr/io.h>
+	#include <stdint.h>
+	#include <stdbool.h>
 
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
@@ -60,11 +62,11 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** Button mask for the first button on the board. */
-			#define BUTTONS_POWER		_BV(PORTB6)
-			#define BUTTONS_SOURCE		_BV(PORTB5)
-			#define BUTTONS_PROGRAM		_BV(PORTB4)
+			#define BUTTONS_POWER		(1UL << (PORTB6))
+			#define BUTTONS_SOURCE		(1UL << (PORTB5))
+			#define BUTTONS_PROGRAM		(1UL << (PORTB4))
 			#define BUTTONS_PHYSICAL	(BUTTONS_POWER | BUTTONS_SOURCE | BUTTONS_PROGRAM)
-			
+
 			#define ADC_DELTA	8
 			#define PRESETP		0
 			#define PRESETN		1
@@ -76,42 +78,42 @@
 			#define PLAY		7
 			#define STOP		8
 			#define SKIPN		9
-			
-			#define BUTTONS_ADC_PRESETP	_BV(ADC_DELTA+PRESETP)
-			#define BUTTONS_ADC_PRESETN	_BV(ADC_DELTA+PRESETN)
-			#define BUTTONS_ADC_VOLN	_BV(ADC_DELTA+VOLN)
-			#define BUTTONS_ADC_VOLP	_BV(ADC_DELTA+VOLP)
-			#define BUTTONS_ADC_DBB		_BV(ADC_DELTA+DBB)
-			#define BUTTONS_ADC_REP		_BV(ADC_DELTA+REP)
-			#define BUTTONS_ADC_SKIPP	_BV(ADC_DELTA+SKIPP)
-			#define BUTTONS_ADC_PLAY	_BV(ADC_DELTA+PLAY)
-			#define BUTTONS_ADC_STOP	_BV(ADC_DELTA+STOP)
-			#define BUTTONS_ADC_SKIPN	_BV(ADC_DELTA+SKIPN)
+
+			#define BUTTONS_ADC_PRESETP	(1UL << (ADC_DELTA+PRESETP))
+			#define BUTTONS_ADC_PRESETN	(1UL << (ADC_DELTA+PRESETN))
+			#define BUTTONS_ADC_VOLN	(1UL << (ADC_DELTA+VOLN))
+			#define BUTTONS_ADC_VOLP	(1UL << (ADC_DELTA+VOLP))
+			#define BUTTONS_ADC_DBB		(1UL << (ADC_DELTA+DBB))
+			#define BUTTONS_ADC_REP		(1UL << (ADC_DELTA+REP))
+			#define BUTTONS_ADC_SKIPP	(1UL << (ADC_DELTA+SKIPP))
+			#define BUTTONS_ADC_PLAY	(1UL << (ADC_DELTA+PLAY))
+			#define BUTTONS_ADC_STOP	(1UL << (ADC_DELTA+STOP))
+			#define BUTTONS_ADC_SKIPN	(1UL << (ADC_DELTA+SKIPN))
 			#define BUTTONS_ADC			(BUTTONS_ADC_PRESETP | BUTTONS_ADC_PRESETN | BUTTONS_ADC_VOLN | BUTTONS_ADC_VOLP | \
-										 BUTTONS_ADC_DBB | BUTTONS_ADC_REP | BUTTONS_ADC_SKIPP | BUTTONS_ADC_PLAY \
-										 BUTTONS_ADC_STOP | BUTTONS_ADC_SKIPN)		
-			
-			
+										 BUTTONS_ADC_DBB | BUTTONS_ADC_REP | BUTTONS_ADC_SKIPP | BUTTONS_ADC_PLAY | \
+										 BUTTONS_ADC_STOP | BUTTONS_ADC_SKIPN)
+
+
 			#define MAX_CHECKS			10
 
 		/* Inline Functions: */
 		#if !defined(__DOXYGEN__)
-		
-			inline void Buttons_Init(void);
-			
+
+			void Buttons_Init(void);
+
 			void Buttons_Debounce(void);
 
-			inline uint8_t Buttons_GetStatus(uint32_t button);
-			
-			inline uint8_t Buttons_Pressed(uint32_t button);
+			bool Buttons_GetStatus(uint32_t button);
 
-			inline uint8_t Buttons_Released(uint32_t button);
-			
-			uint8_t get_key_press(void);
+			bool Buttons_Pressed(uint32_t button);
 
-			uint8_t get_key_state(void);
+			bool Buttons_Released(uint32_t button);
 
-			
+			uint16_t get_key_press(void);
+
+			uint16_t get_key_state(void);
+
+
 		#endif
 
 	/* Disable C linkage for C++ Compilers: */

@@ -21,7 +21,10 @@
   this software.
 */
 
+#include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -29,74 +32,97 @@
 
 #include "adc.h"
 
+typedef struct _adcint {
+	uint8_t samples;
+	uint8_t admux;
+	bool finished;
+	uint16_t result;
+	struct _adcint *next;
+} adcint_t;
 
-static volatile uint16_t chan_result[MAX_REGISTERED_CHANNLES];
-static volatile uint16_t chan_ready;
+static volatile adcint_t *first;
+static volatile adcint_t *current;
 
-static volatile adc_t adcs[MAX_REGISTERED_CHANNLES];
-static volatile uint8_t num_channels;
-
-ISR(ADC_vect, ISR_BLOCK)
+ISR(ADC_vect)
 {
-	static uint8_t cur_adc = 0;
-	static uint8_t sample = 0;
-	static uint16_t res = 0;
+	static uint8_t sample;
+	static uint16_t res;
 	
-	if (sample < adcs[cur_adc].samples) {
-		if(adcs[cur_adc].resolution == RES_10BIT)
-			res += ADCL | (ADCH<<8);
+	if(sample < current->samples) {
+		if(ADMUX & _BV(ADLAR))
+			res += ADCH;				// 8 bit mode
 		else
-			res += ADCH;
+			res += ADCL | (ADCH<<8);	// 10 bit mode
 		sample++;
 	} else {
-		chan_result[cur_adc] = res / adcs[cur_adc].samples;
-		chan_ready |= _BV(cur_adc);
-
+		// sampling finished
+		current->result = res / current->samples;
+		
 		res = 0;
 		sample = 0;
 		
-		cur_adc++;
-		if(cur_adc >= num_channels)
-			cur_adc = 0;
+		current = current->next;
+		if(current == NULL)
+			current = first;
 		
-		ADCSRA = (ADCSRA & ~(0x03)) | adcs[cur_adc].divider;
-		ADMUX = (adcs[cur_adc].vref << 7) | (adcs[cur_adc].resolution <<  ADLAR) | (adcs[cur_adc].channel & 0x1F);
+		ADMUX = current->admux;
 	}
+	ADCSRA |= _BV(ADSC) | _BV(ADIF);
 }
 
 void adc_init(void)
 {
-	chan_ready = 0;
-	num_channels = 0;
-	
-	ADCSRA = _BV(ADEN) | _BV(ADATE) | _BV(ADIE);
+	ADCSRA = _BV(ADEN) | _BV(ADIE) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
 }
 
 int8_t adc_register_channel(adc_t adc)
 {
-	if(num_channels >= MAX_REGISTERED_CHANNLES)
+	uint8_t idx = 0;
+	adcint_t *head = first;
+	adcint_t *n;
+	
+	n = malloc(sizeof(adcint_t));
+	if(n == NULL)
 		return -1;
-	
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-		num_channels++;
-		memcpy(&adcs[num_channels], &adc, sizeof(adc_t));
-		ADCSRA |= _BV(ADSC);
-	}
-	
-	return num_channels;
-}
 
-uint8_t adc_get_result(uint8_t index, uint16_t *res)
-{
-	uint8_t result = 1;
+	memset(n, 0, sizeof(adcint_t));
+	n->samples = adc.samples;
+	n->admux = (adc.vref << REFS0) | (1 << ADLAR) | (adc.channel & 0x1F);
+
+	if(head == NULL) {
+		first = n;
+		current = n;
+		ADMUX = n->admux;
+		sei();
+		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+	} else {
+		// walk to the end of the list
+		while(head->next) {
+			idx++;
+			head = head->next;
+		}
 	
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-		if(chan_ready & _BV(index)) {
-			*res = chan_result[index];
-			chan_ready &= ~_BV(index);
-			result = 0;
+		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+			head->next = n;
 		}
 	}
 	
-	return result;
+	return idx;
+}
+
+uint16_t adc_get_result(uint8_t index)
+{
+	adcint_t *p = first;
+	uint16_t res = 0;
+	
+	while(index && p->next) {
+		index--;
+		p = p->next;
+	}
+	
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		res = p->result;
+	}
+
+	return res;
 }

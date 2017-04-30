@@ -42,8 +42,11 @@
 #include "Board/Driver/pt6524.h"
 #include "Board/Driver/backlight.h"
 #include "Board/Driver/gpio.h"
+#include "Board/Driver/adc.h"
 
 #include "Board/Driver/bootloader.h"
+
+volatile uint16_t isrcnt = 0;
 
 /** LUFA CDC Class driver interface configuration and state information. This structure is
  *  passed to all CDC Class driver functions, so that multiple instances of the same class
@@ -83,30 +86,6 @@ static FILE USBSerialStream;
 #define PT6524_LCD_SEGMENTS 192
 uint16_t segments[ PT6524_LCD_SEGMENTS / sizeof(uint16_t) ];
 
-#define BUTTON_PWR	gpio_sfr(B, 6)
-#define BUTTON_SCR	gpio_sfr(B, 5)
-#define BUTTON_PRG	gpio_sfr(B, 4)
-
-static void buttons_Init(void)
-{
-	gpio_direction(BUTTON_SCR, false);
-	gpio_direction(BUTTON_PWR, false);
-	gpio_direction(BUTTON_PRG, false);
-	
-	gpio_pullup(BUTTON_PWR, true);
-	gpio_pullup(BUTTON_SCR, true);
-	gpio_pullup(BUTTON_PRG, true);
-}
-
-static void ADCs_Init(void)
-{
-	ADMUX = _BV(REFS0) | _BV(ADLAR) | _BV(MUX2);
-	ADCSRA = _BV(ADEN) | _BV(ADATE) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
-	DIDR0 = _BV(ADC4D);
-	
-	ADCSRA |= _BV(ADSC);
-}
-
 static void timer1_Init (void)
 {
 	OCR1A = (F_CPU / F_INTERRUPTS) - 1;		// compare value: 1/15000 of CPU frequency
@@ -137,9 +116,9 @@ int main(void)
 	for (;;)
 	{
         CDC_Task();
-		
+
 		IMRP_Task();
-        
+
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
 	}
@@ -158,13 +137,12 @@ void SetupHardware(void)
 	/* Hardware Initialization */
 	backlight_Init();
 	pt6524_Init();
-	buttons_Init();
-	ADCs_Init();
-	
+
 	irmp_init();
 	timer1_Init();
 
 	LEDs_Init();
+	Buttons_Init();
 	USB_Init();
 }
 
@@ -226,7 +204,7 @@ void ShiftLeftByOne(uint64_t *arr, int len)
 {
 	int i;
 	uint8_t carry = 0, done = 0;
-	
+
 	for(i=0;i<len;i++) {
 		if(carry) {
 			arr[i] |= carry;
@@ -237,7 +215,7 @@ void ShiftLeftByOne(uint64_t *arr, int len)
 			arr[i] <<= 1;
 		done = 0;
 	}
-	
+
 #if 0
     int i;
 	uint8_t carry = 0, x = 0;
@@ -258,89 +236,110 @@ void ParseCommand(unsigned char c)
 {
 	char buffer[128];
 	char *pos = buffer;
-	
+	static uint16_t index = 0;
+
 	memset(buffer, 0, sizeof(buffer));
-	
+
     switch(c) {
     case 'n':
     case 'N':
         ShiftLeftByOne((uint64_t*)segments, sizeof(segments)/sizeof(uint64_t));
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Shifting Bit left...\n\rPattern: "));
-		for(int i=0; i < 12; i++)
-			pos += sprintf(pos, "%04X ", segments[i]);
+		int i = 12;
+		do {
+			pos += sprintf(pos, "%04X ", segments[i-1]);
+		} while(--i);
+		sprintf(pos, "\n\r");
 		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buffer);
+		sprintf(buffer, "  idx: %d\n\r", index);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buffer);
+		index++;
+		if(index > 52)
+			index = 0;
         break;
-        
+
     case 's':
     case 'S':
         memset(segments, 0, sizeof(segments));
         segments[0] = 0x01;
+		index = 1;
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Reseting LCD...\n\r"));
         break;
-		
+
 	case 'b':
 	case 'B':
 		// toggle backlight
 		backlight_toggle();
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Backlight toggle...\n\r"));
 		break;
-		
+
 	case 'a':
 	case 'A':
 		memset(segments, 0xFF, sizeof(segments));
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Enabling all segments...\n\r"));
 		break;
-		
+
 	case 'p':
 	case 'P':
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Entering bootloader...\n\r"));
 		Jump_To_Bootloader();
 		break;
-        
+
+	case 'k':
+		sprintf(buffer, "state: 0x%04x; press: 0x%04x; isr: %d\n\r", get_key_state(), get_key_press(), isrcnt);
+		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buffer);
+		break;
+
     default:
         return;
     }
-	
+
 }
 
 void CDC_Task(void)
 {
+	static uint8_t idx = 0;
     uint32_t bytes;
-	char buf[32];
-	uint8_t adcButton;
-    
+	char buf[64];
+	uint16_t adcRes;
+
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
         return;
-		
+
 	if(Buttons_Pressed(BUTTONS_POWER))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    pwr pressed\n\r"));
 	else if(Buttons_Released(BUTTONS_POWER))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    pwr released\n\r"));
-		
+
 	if(Buttons_Pressed(BUTTONS_SOURCE))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    scr pressed\n\r"));
 	else if(Buttons_Released(BUTTONS_SOURCE))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    scr released\n\r"));
-		
+
 	if(Buttons_Pressed(BUTTONS_PROGRAM))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    prg pressed\n\r"));
 	else if(Buttons_Released(BUTTONS_PROGRAM))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    prg released\n\r"));
-	
-	if(get_key_press()) {
-		sprintf(buf, "adc: 0x%02X\n\r"), get_key_state();
-		CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
-	}
-		
+
+	if(Buttons_Pressed(BUTTONS_ADC))
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    adc pressed\n\r"));
+	else if(Buttons_Released(BUTTONS_ADC))
+		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    adc released\n\r"));
+
+
+//	sprintf(buf, "state: 0x%08lx\n\r", BUTTONS_ADC);
+//	CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
+
+
 #if 0
 	if(ADCSRA & _BV(ADIF)) {
 		uint16_t adc = ADCH;
 		ADCSRA |= _BV(ADIF);
-		
+
 		if(cnt < 16) {
 			cnt++;
 			adcsum += adc;
@@ -359,7 +358,7 @@ void CDC_Task(void)
 #endif
 
     bytes = CDC_Device_BytesReceived(&VirtualSerial_CDC_Interface);
-    
+
     while(bytes > 0) {
         uint16_t c = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
         if(c >= 0) {
@@ -384,7 +383,7 @@ void IMRP_Task(void)
 {
 	IRMP_DATA irmp_data;
 	char buf[5];
-	
+
 	if (irmp_get_data (&irmp_data)) {
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("protocol: 0x"));
 		itoh(buf, 2, irmp_data.protocol);

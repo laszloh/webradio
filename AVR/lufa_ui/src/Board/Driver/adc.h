@@ -46,16 +46,6 @@ typedef enum _vref {
 	VREF_INTERNAL
 } vref_t;
 
-typedef enum _prescale {
-	CDIV_2 = 1,
-	CDIV_4,
-	CDIV_8,
-	CDIV_16,
-	CDIV_32,
-	CDIV_64,
-	CDIV_128
-} prescale_t;
-
 typedef enum _resultion {
 	RES_10BIT = 0,
 	RES_8BIT
@@ -64,7 +54,6 @@ typedef enum _resultion {
 typedef struct _adc {
 	uint8_t channel;
 	vref_t vref;
-	prescale_t divider;
 	resolution_t resolution;
 	uint8_t samples;
 } adc_t;
@@ -73,4 +62,6 @@ void adc_init(void);
 
 int8_t adc_register_channel(adc_t adc);
 
-uint8_t adc_get_result(uint8_t index, uint16_t *res);
+uint16_t adc_get_result(uint8_t index);
+
+extern volatile uint16_t isrcnt;
