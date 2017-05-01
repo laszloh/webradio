@@ -3,7 +3,7 @@
  *
  * Created: 21.04.2017 21:55:30
  *  Author: Simon
- */ 
+ */
 
 
 #ifndef GPIO_H_
@@ -23,8 +23,8 @@ typedef struct _gpio {
 #define gpio_sfr(_port, _pin)				\
 	(gpio_t){&DDR##_port, &PORT##_port, &PIN##_port, P##_port##_pin}
 
-#define GPIO_OUTPUT		TRUE
-#define GPIO_INPUT		FALSE
+#define GPIO_OUTPUT		true
+#define GPIO_INPUT		false
 
 // GPIO directions
 inline void gpio_direction(gpio_t io, bool output) __attribute__((__always_inline__));
@@ -35,7 +35,7 @@ inline void gpio_direction(gpio_t io, bool output) {
 		*(io._ddr) &= ~_BV(io.bit);
 }
 
-// write to output 
+// write to output
 inline void gpio_write(gpio_t io, bool level) __attribute__((__always_inline__));
 inline void gpio_write(gpio_t io, bool level) {
 		if(level)

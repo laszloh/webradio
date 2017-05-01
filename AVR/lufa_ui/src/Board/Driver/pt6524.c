@@ -36,21 +36,8 @@
 #include "gpio.h"
 
 #define PT_ADDRESS		0x41	// 41H
-
 #define CHIPSEL			gpio_sfr(D,7)
 
-/*
-typedef struct _frame {
-	uint8_t dd:2;
-	uint8_t bu:1;
-	uint8_t sc:1;
-	uint8_t dr:1;
-	uint8_t port:4;
-	uint8_t cu:1;
-	uint8_t _res:2;
-	uint64_t data:52;
-}  __attribute__((packed)) pt6524_frame_t;
-*/
 typedef struct _frame {
 	uint64_t data:52;
 	uint8_t _res:2;
@@ -83,7 +70,7 @@ void pt6524_Init(void)
     }
 }
 
-void pt6524_write_raw(uint16_t *buffer, size_t size, uint16_t segments)
+void pt6524_write_raw(void *buffer, size_t size, uint16_t segments)
 {
     pt6524_frame_t frame;
     uint8_t i;

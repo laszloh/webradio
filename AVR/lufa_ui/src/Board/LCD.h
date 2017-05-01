@@ -9,6 +9,9 @@
 #ifndef LCD_H_
 #define LCD_H_
 
+#include <stdint.h>
+#include <stdbool.h>
+
 typedef enum _symbols {
 	SYM_CDROM=0,
 	SYM_USB,
@@ -41,6 +44,18 @@ typedef enum _symbols {
 } symbols_t;
 
 
+void LCD_Init(void);
 
+void LCD_SetSymbol(symbols_t symb, bool state);
+
+void LCD_SetChar(char c, uint8_t position);
+
+void LCD_SetString(const char* str);
+
+void LCD_SetString_P(const char* str);
+
+void LCD_Clear(void);
+
+void LCD_SetBacklight(bool state);
 
 #endif /* LCD_H_ */

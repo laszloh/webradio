@@ -39,12 +39,8 @@
 #undef CONCAT
 #include "irmp.h"
 
-#include "Board/Driver/pt6524.h"
-#include "Board/Driver/backlight.h"
-#include "Board/Driver/gpio.h"
-#include "Board/Driver/adc.h"
-
 #include "Board/Driver/bootloader.h"
+#include "Board/LCD.h"
 
 volatile uint16_t isrcnt = 0;
 
@@ -135,13 +131,12 @@ void SetupHardware(void)
 	clock_prescale_set(clock_div_1);
 
 	/* Hardware Initialization */
-	backlight_Init();
-	pt6524_Init();
 
 	irmp_init();
 	timer1_Init();
 
 	LEDs_Init();
+	LCD_Init();
 	Buttons_Init();
 	USB_Init();
 }
@@ -237,10 +232,12 @@ void ParseCommand(unsigned char c)
 	char buffer[128];
 	char *pos = buffer;
 	static uint16_t index = 0;
+	static bool sym_state = true;
 
 	memset(buffer, 0, sizeof(buffer));
 
     switch(c) {
+#if 0
     case 'n':
     case 'N':
         ShiftLeftByOne((uint64_t*)segments, sizeof(segments)/sizeof(uint64_t));
@@ -281,6 +278,16 @@ void ParseCommand(unsigned char c)
 		pt6524_write_raw(segments, sizeof(segments)/sizeof(uint16_t), PT6524_LCD_SEGMENTS);
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Enabling all segments...\n\r"));
 		break;
+#endif
+
+	case 's':
+		LCD_SetSymbol(SYM_USB, sym_state);
+		sym_state ^= true;
+		break;
+
+	case 'h':
+		LCD_SetString_P(PSTR("Hello Wrld"));
+		break;
 
 	case 'p':
 	case 'P':
@@ -301,10 +308,9 @@ void ParseCommand(unsigned char c)
 
 void CDC_Task(void)
 {
-	static uint8_t idx = 0;
+//	static uint8_t idx = 0;
     uint32_t bytes;
-	char buf[64];
-	uint16_t adcRes;
+//	char buf[64];
 
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -334,28 +340,6 @@ void CDC_Task(void)
 //	sprintf(buf, "state: 0x%08lx\n\r", BUTTONS_ADC);
 //	CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
 
-
-#if 0
-	if(ADCSRA & _BV(ADIF)) {
-		uint16_t adc = ADCH;
-		ADCSRA |= _BV(ADIF);
-
-		if(cnt < 16) {
-			cnt++;
-			adcsum += adc;
-		} else {
-			cnt = 0;
-			adc = (adcsum >> 4);
-			adcsum = 0;
-
-			if(lastAdc != adc) {
-				sprintf(buf, "ADC: 0x%02X\n\r", adc);
-				CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
-				lastAdc = adc;
-			}
-		}
-	}
-#endif
 
     bytes = CDC_Device_BytesReceived(&VirtualSerial_CDC_Interface);
 

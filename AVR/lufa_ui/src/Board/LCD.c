@@ -5,8 +5,18 @@
  *  Author: Simon
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+
+#include "LCD.h"
+
+#include "Driver/pt6524.h"
+#include "Driver/backlight.h"
+
+#define LCD_SEGMENT_COUNT	156
 
 typedef struct _segdef {
 	uint8_t msg:2;
@@ -290,3 +300,64 @@ static const uint16_t chars[] PROGMEM = {
 	0x0000,
 	0x3FFF,
 };
+
+static uint64_t disp_mem[3];
+
+static inline void SetElement(segdef_t e) __attribute__((always_inline));
+static inline void ClearElement(segdef_t e) __attribute__((always_inline));
+
+void LCD_Init(void)
+{
+	pt6524_Init();
+	backlight_Init();
+
+	LCD_Clear();
+	backlight_clear();
+}
+
+void LCD_SetSymbol(symbols_t symb, bool state)
+{
+	uint8_t pgm = pgm_read_byte(&(symbols[symb]));
+	if(state)
+		SetElement(*(segdef_t*)&pgm);
+	else
+		ClearElement(*(segdef_t*)&pgm);
+	pt6524_write_raw((void*)disp_mem, sizeof(disp_mem), LCD_SEGMENT_COUNT);
+}
+
+void LCD_SetChar(char c, uint8_t position)
+{
+
+}
+
+void LCD_SetString(const char* str)
+{
+
+}
+
+void LCD_SetString_P(const char* str)
+{
+
+}
+
+void LCD_Clear(void)
+{
+	memset(disp_mem, 0, sizeof(disp_mem));
+	pt6524_write_raw((void*)disp_mem, sizeof(disp_mem), LCD_SEGMENT_COUNT);
+}
+
+void LCD_SetBacklight(bool state)
+{
+	backlight_change(state);
+}
+
+static inline void SetElement(segdef_t e)
+{
+	disp_mem[e.msg] |= (1UL << e.bit);
+}
+
+static inline void ClearElement(segdef_t e)
+{
+	disp_mem[e.msg] &= ~(1UL << e.bit);
+}
+
