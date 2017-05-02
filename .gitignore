@@ -32,6 +32,7 @@
 *.lss
 *.map
 *.sym
+*.bin
 
 # Debug files
 *.dSYM/
@@ -40,6 +41,7 @@
 # Debug folder
 Debug/
 Release/
+obj/
 
 # Visual studio generated files
 .vs/
