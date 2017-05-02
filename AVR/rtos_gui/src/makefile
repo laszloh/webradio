@@ -35,7 +35,7 @@ BOARD         = USER
 F_CPU         = 16000000
 F_USB         = $(F_CPU)
 OPTIMIZATION  = s
-TARGET        = Webradio
+TARGET        = rtos_gui
 
 # Library paths
 LUFA_PATH     = ../lib/lufa/LUFA

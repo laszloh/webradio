@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "lufa_ui", "lufa_ui\lufa_ui.cproj", "{DCE6C7E3-EE26-4D79-826B-08594B9AD897}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "rtos_gui", "rtos_gui\rtos_gui.cproj", "{B048BAB6-F322-4391-8D44-FAE7308A695D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -15,10 +17,10 @@ Global
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.Build.0 = Release|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.ActiveCfg = Release|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.Build.0 = Release|AVR
-		{FE376540-D1AA-4EA9-95F1-EE0F3D172D16}.Debug|AVR.ActiveCfg = Debug|AVR
-		{FE376540-D1AA-4EA9-95F1-EE0F3D172D16}.Debug|AVR.Build.0 = Debug|AVR
-		{FE376540-D1AA-4EA9-95F1-EE0F3D172D16}.Release|AVR.ActiveCfg = Release|AVR
-		{FE376540-D1AA-4EA9-95F1-EE0F3D172D16}.Release|AVR.Build.0 = Release|AVR
+		{B048BAB6-F322-4391-8D44-FAE7308A695D}.Debug|AVR.ActiveCfg = Debug|AVR
+		{B048BAB6-F322-4391-8D44-FAE7308A695D}.Debug|AVR.Build.0 = Debug|AVR
+		{B048BAB6-F322-4391-8D44-FAE7308A695D}.Release|AVR.ActiveCfg = Release|AVR
+		{B048BAB6-F322-4391-8D44-FAE7308A695D}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
