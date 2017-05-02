@@ -27,6 +27,11 @@
 *.i*86
 *.x86_64
 *.hex
+*.lst
+*.eep
+*.lss
+*.map
+*.sym
 
 # Debug files
 *.dSYM/
