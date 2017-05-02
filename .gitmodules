@@ -4,3 +4,12 @@
 [submodule "AVR/lufa_ui/src/irmp"]
 	path = AVR/lufa_ui/src/irmp
 	url = https://github.com/svn2github/irmp.git
+[submodule "AVR/rtos_gui/lib/freertos"]
+	path = AVR/rtos_gui/lib/freertos
+	url = https://github.com/cjlano/freertos.git
+[submodule "AVR/rtos_gui/lib/lufa"]
+	path = AVR/rtos_gui/lib/lufa
+	url = https://github.com/abcminiuser/lufa.git
+[submodule "AVR/rtos_gui/lib/irmp"]
+	path = AVR/rtos_gui/lib/irmp
+	url = https://github.com/svn2github/irmp.git
