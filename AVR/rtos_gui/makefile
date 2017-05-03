@@ -38,24 +38,25 @@ OPTIMIZATION  = s
 TARGET        = rtos_gui
 
 # Library paths
-LUFA_PATH     = ../lib/lufa/LUFA
-RTOS_DIR      = ../lib/freertos/FreeRTOS/Source
-PORT_DIR      = ./portable/atmega32u4
-IRMP_DIR      = ../lib/irmp
+LUFA_PATH     = lib/lufa/LUFA
+RTOS_DIR      = lib/freertos/FreeRTOS/Source
+IRMP_DIR      = lib/irmp
+SRC_DIR       = src
+PORT_DIR      = $(SRC_DIR)/portable/atmega32u4
 
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
-EXTRAINCDIRS += ./config ./portable/atmega32u4
-EXTRAINCDIRS += ../lib/irmp 
-EXTRAINCDIRS += ../lib/lufa
-EXTRAINCDIRS += ../lib/freertos/FreeRTOS/Source/include
+EXTRAINCDIRS += $(SRC_DIR) $(SRC_DIR)/config $(SRC_DIR)/portable/atmega32u4
+EXTRAINCDIRS += lib/irmp 
+EXTRAINCDIRS += lib/lufa
+EXTRAINCDIRS += lib/freertos/FreeRTOS/Source/include
 
 # List all extra defines here
 #     Each define must be seperated by a space.
 EXTRADEFS   += IRMP_USE_AS_LIB
 EXTRADEFS   += USE_LUFA_CONFIG_HEADER
 
-SRC	         = main.c Descriptors.c \
+SRC	         = $(SRC_DIR)/main.c $(SRC_DIR)/Descriptors.c \
 $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) \
 $(RTOS_DIR)/tasks.c \
 $(RTOS_DIR)/queue.c \
