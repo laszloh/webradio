@@ -47,7 +47,7 @@ PORT_DIR      = $(SRC_DIR)/portable/atmega32u4
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
 EXTRAINCDIRS += $(SRC_DIR) $(SRC_DIR)/config $(SRC_DIR)/portable/atmega32u4
-EXTRAINCDIRS += lib/irmp 
+EXTRAINCDIRS += lib/irmp
 EXTRAINCDIRS += lib/lufa
 EXTRAINCDIRS += lib/freertos/FreeRTOS/Source/include
 
@@ -57,6 +57,11 @@ EXTRADEFS   += IRMP_USE_AS_LIB
 EXTRADEFS   += USE_LUFA_CONFIG_HEADER
 
 SRC	         = $(SRC_DIR)/main.c $(SRC_DIR)/Descriptors.c \
+$(SRC_DIR)/Board/LCD.c \
+$(SRC_DIR)/Board/Buttons.c \
+$(SRC_DIR)/Board/Driver/adc.c \
+$(SRC_DIR)/Board/Driver/bootloader.c \
+$(SRC_DIR)/Board/Driver/pt6524.c \
 $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) \
 $(RTOS_DIR)/tasks.c \
 $(RTOS_DIR)/queue.c \

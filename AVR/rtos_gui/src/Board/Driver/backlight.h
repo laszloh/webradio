@@ -3,7 +3,7 @@
  *
  * Created: 25.03.2017 22:12:51
  *  Author: Simon
- */ 
+ */
 
 
 #ifndef BACKLIGHT_H_
@@ -15,7 +15,7 @@
 
 #define backlight_Init()			gpio_direction(BACKLIGHT, GPIO_OUTPUT)
 
-#define backlight_change(state)		gpio_write(BACKLIGHT, !state)
+#define backlight_change(state)		gpio_write(BACKLIGHT, !(state))
 
 #define backlight_toggle()			gpio_toggle(BACKLIGHT)
 

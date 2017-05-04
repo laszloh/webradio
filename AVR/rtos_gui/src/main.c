@@ -25,13 +25,16 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
+/* custom driver includes */
+#include "Board/LCD.h"
+
 /* Scheduler include files. */
 #include "FreeRTOS.h"
 #include "task.h"
 #include "croutine.h"
 #include "semphr.h"
 
-/* Priority definitions for most tasks in the application.  Somel
+/* Priority definitions for most tasks in the application.  Some
    tasks just use the idle priority. */
 #define mainIRMP_TASK_PRIORITY			( tskIDLE_PRIORITY + 1 )
 #define mainUSB_TASK_PRIORITY			( tskIDLE_PRIORITY + 1 )
@@ -102,8 +105,8 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
 #define COULD_NOT_ALLOCATE_TASK		9
 #define COULD_NOT_ALLOCATE_MUTEX	12
 
-#define ERROR_FLASH_TIMEOUT			125
-#define COUNT_WAIT_TIMEOUT			500
+#define ERROR_FLASH_TIMEOUT			500
+#define COUNT_WAIT_TIMEOUT			5000
 
 static void die(uint8_t count);
 
@@ -112,11 +115,11 @@ static void die(uint8_t count);
 int main( void )
 {
 	/* Create the tasks defined within this file. */
-	if(xTaskCreate(vGuiTask, "GUI", configMINIMAL_STACK_SIZE, NULL, mainGUI_TASK_PRIORITY, NULL) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY)
+	if(xTaskCreate(vGuiTask, "GUI", configMINIMAL_STACK_SIZE+100, NULL, mainGUI_TASK_PRIORITY, NULL) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY)
 		die(COULD_NOT_ALLOCATE_TASK);
-	if(xTaskCreate(vUsbTask, "USB", configMINIMAL_STACK_SIZE, NULL, mainUSB_TASK_PRIORITY, NULL) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY)
+	if(xTaskCreate(vUsbTask, "USB", configMINIMAL_STACK_SIZE+100, NULL, mainUSB_TASK_PRIORITY, NULL) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY)
 		die(COULD_NOT_ALLOCATE_TASK);
-	if(xTaskCreate(vIrmpTask, "imrp", configMINIMAL_STACK_SIZE, NULL, mainIRMP_TASK_PRIORITY, NULL) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY)
+	if(xTaskCreate(vIrmpTask, "imrp", configMINIMAL_STACK_SIZE+100, NULL, mainIRMP_TASK_PRIORITY, NULL) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY)
 		die(COULD_NOT_ALLOCATE_TASK);
 
 	/* In this port, to use preemptive scheduler define configUSE_PREEMPTION
@@ -133,12 +136,17 @@ int main( void )
 static void vGuiTask( void *pvParameters )
 {
 	TickType_t FlashTime;
+	symbols_t s = SYM_CDROM;
 
 	/* The parameters are not used. */
 	( void ) pvParameters;
-	
+
+	LCD_Init();
+	LCD_SetStandby(false);
+	LCD_SetSymbol(s, true);
+
 	LEDs_Init();
-	FlashTime = xTaskGetTickCount();
+	FlashTime = xTaskGetTickCount();;
 
 	/* Cycle for ever, delaying then checking all the other tasks are still
 	operating without error. */
@@ -147,14 +155,20 @@ static void vGuiTask( void *pvParameters )
 		if( (xTaskGetTickCount() - FlashTime) >= FLASH_RATE ) {
 			FlashTime = xTaskGetTickCount();
 			LEDs_ToggleLEDs(LEDS_LED1);
+
+			LCD_SetSymbol(s, false);
+			s = (symbols_t) s + 1;
+			if(s >= SYM_MAX)
+				s = SYM_CDROM;
+			LCD_SetSymbol(s, true);
 		}
-		
+
 		vTaskDelay(4);
 	}
 }
 
 
-#define USB_PERIOD_MS	(5 / portTICK_PERIOD_MS)
+#define USB_PERIOD_MS	(2 / portTICK_PERIOD_MS)
 
 static void vUsbTask( void *pvParameters )
 {
@@ -162,24 +176,26 @@ static void vUsbTask( void *pvParameters )
 
 	/* The parameters are not used. */
 	( void ) pvParameters;
-	
+
 	USB_Init();
 	CDC_Device_CreateStream(&VirtualSerial_CDC_Interface, &USBSerialStream);
+
 	xCdcInterface = xSemaphoreCreateMutex();
 	if(xCdcInterface == NULL) {
 		die(COULD_NOT_ALLOCATE_MUTEX);
 	}
+	xSemaphoreGive(xCdcInterface);
 
 	xLastWakeTime = xTaskGetTickCount();
-	
+
 	for( ;; )
 	{
-		vTaskDelayUntil(&xLastWakeTime, USB_PERIOD_MS);
-		
+//		vTaskDelayUntil(&xLastWakeTime, USB_PERIOD_MS);
+
 		xSemaphoreTake(xCdcInterface, portMAX_DELAY);
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		xSemaphoreGive(xCdcInterface);
-		
+
 		USB_USBTask();
 	}
 }
@@ -194,6 +210,19 @@ static char *itoh (char * buf, uint8_t digits, uint16_t number)
 	return buf;
 }
 
+ISR(TIMER3_COMPA_vect)
+{
+	(void) irmp_ISR();			// call irmp ISR
+	Buttons_Debounce();
+}
+
+static void timer3_init(void)
+{
+	OCR3A = (F_CPU / F_INTERRUPTS) - 1;		// compare value: 1/15000 of CPU frequency
+	TCCR3B = _BV(WGM12) | _BV(CS10);		// switch CTC Mode on, set prescaler to 1
+	TIMSK3 = _BV(OCIE3A);					// OCIE1A: Interrupt by timer compare
+}
+
 static void vIrmpTask( void *pvParameters )
 {
 	IRMP_DATA irmp_data;
@@ -201,7 +230,8 @@ static void vIrmpTask( void *pvParameters )
 
 	/* The parameters are not used. */
 	( void ) pvParameters;
-	
+
+	timer3_init();
 	irmp_init();
 
 	/* Cycle for ever, delaying then checking all the other tasks are still
@@ -210,7 +240,7 @@ static void vIrmpTask( void *pvParameters )
 	{
 		if (irmp_get_data (&irmp_data)) {
 			xSemaphoreTake(xCdcInterface, portMAX_DELAY);
-			
+
 			CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("protocol: 0x"));
 			itoh(buf, 2, irmp_data.protocol);
 			CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
@@ -230,11 +260,11 @@ static void vIrmpTask( void *pvParameters )
 			CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
 
 			CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\r\n"));
-			
+
 			xSemaphoreGive(xCdcInterface);
 		}
 
-		vTaskDelay( 100 / portTICK_PERIOD_MS );
+		vTaskDelay( 10 / portTICK_PERIOD_MS );
 	}
 }
 
@@ -245,7 +275,6 @@ static void vIrmpTask( void *pvParameters )
  */
 void EVENT_USB_Device_Connect(void)
 {
-	/* Indicate USB enumerating */
 }
 
 /** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
@@ -253,7 +282,6 @@ void EVENT_USB_Device_Connect(void)
  */
 void EVENT_USB_Device_Disconnect(void)
 {
-	/* Indicate USB not ready */
 }
 
 /** Event handler for the USB_ConfigurationChanged event. This is fired when the host sets the current configuration
@@ -261,11 +289,13 @@ void EVENT_USB_Device_Disconnect(void)
  */
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
+	CDC_Device_ConfigureEndpoints(&VirtualSerial_CDC_Interface);
 }
 
 /** Event handler for the library USB Control Request reception event. */
 void EVENT_USB_Device_ControlRequest(void)
 {
+	CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
 }
 
 /** CDC class driver callback function the processing of changes to the virtual
@@ -276,6 +306,7 @@ void EVENT_USB_Device_ControlRequest(void)
 void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t *const CDCInterfaceInfo)
 {
 }
+
 /*-----------------------------------------------------------*/
 
 void vApplicationIdleHook( void )
@@ -283,7 +314,7 @@ void vApplicationIdleHook( void )
 	vCoRoutineSchedule();
 }
 
-void vApplicationMallocFailedHook(void) 
+void vApplicationMallocFailedHook(void)
 {
 	die(MALLOC_FAILED);
 }
@@ -295,7 +326,7 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 
 void vApplicationTickHook( void )
 {
-	
+
 }
 
 void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint16_t *pusIdleTaskStackSize )
@@ -334,10 +365,10 @@ static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
 void die(uint8_t count)
 {
 	uint8_t i;
-	
+
 	LEDs_Init();
 	cli();
-	
+
 	while(1) {
 		for(i=0;i<count;i++) {
 			LEDs_TurnOnLEDs(LEDS_ALL_LEDS);

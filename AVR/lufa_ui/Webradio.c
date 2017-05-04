@@ -39,7 +39,7 @@
 #undef CONCAT
 #include "irmp.h"
 
-#include "Board/Driver/pt6524.h"
+#include "Board/LCD.h"
 #include "Board/Driver/backlight.h"
 #include "Board/Driver/gpio.h"
 #include "Board/Driver/adc.h"
@@ -135,8 +135,15 @@ void SetupHardware(void)
 	clock_prescale_set(clock_div_1);
 
 	/* Hardware Initialization */
-	backlight_Init();
-	pt6524_Init();
+	LCD_Init();
+	LCD_SetStandby(false);
+
+	bool s = true;
+	while(1) {
+		LCD_SetSymbol(SYM_USB, s);
+		s != s;
+		_delay_ms(500);
+	}
 
 	irmp_init();
 	timer1_Init();

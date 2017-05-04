@@ -5,8 +5,19 @@
  *  Author: Simon
  */
 
+#include <string.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+
+#include "LCD.h"
+
+#include "Driver/pt6524.h"
+#include "Driver/backlight.h"
+
+#define static_assert(X) {char __p__[(X)-1];}
+#define reinterpret(T,V) ({union{T a; typeof(V) b;} __x__; static_assert(sizeof(T)==sizeof(V)); __x__.b=(V); __x__.a; })
+
+#define SEGMENT_COUNT	156
 
 typedef struct _segdef {
 	uint8_t msg:2;
@@ -150,35 +161,35 @@ static const segdef_t character8[] PROGMEM = {
 };
 
 static const segdef_t symbols[] PROGMEM = {
-	{.msg = 0, .bit = 11},			// Kreis Punkt
+	{.msg = 0, .bit = 11},			// CD-ROM
 	{.msg = 0, .bit = 15},			// USB
 	{.msg = 0, .bit = 27},			// SD-Karte
 	{.msg = 0, .bit = 31},			// Antenne
 	{.msg = 0, .bit = 43},			// Kreis mit Pfeil
 	{.msg = 0, .bit = 47},			// Kasette
-	{.msg = 2, .bit = 7},			// Random
-	{.msg = 2, .bit = 11},			// Prog
-	{.msg = 2, .bit = 15},			// Play
-	{.msg = 2, .bit = 19},			// Repeat
-	{.msg = 2, .bit = 23},			// All
-	{.msg = 2, .bit = 31},			// Album
-	{.msg = 2, .bit = 27},			// zwei Kreise
-	{.msg = 2, .bit = 35},			// Timer
-	{.msg = 2, .bit = 37},			// Record
-	{.msg = 2, .bit = 38},			// UBS
-	{.msg = 2, .bit = 36},			// Pop
-	{.msg = 2, .bit = 39},			// Jazz
-	{.msg = 2, .bit = 40},			// Classic
-	{.msg = 2, .bit = 43},			// Rock
-	{.msg = 1, .bit = 3},			// R-D-S
-	{.msg = 1, .bit = 15},			// Sleep
-	{.msg = 1, .bit = 27},			// PM
-	{.msg = 1, .bit = 36},			// FM
-	{.msg = 1, .bit = 39},			// MW
-	{.msg = 1, .bit = 37},			// MHz
-	{.msg = 1, .bit = 38},			// kHz
-	{.msg = 3, .bit = 13},			// dot
-	{.msg = 3, .bit = 14},			// Doppelpunkt
+	{.msg = 1, .bit = 7},			// Random
+	{.msg = 1, .bit = 11},			// Prog
+	{.msg = 1, .bit = 15},			// Play
+	{.msg = 1, .bit = 19},			// Repeat
+	{.msg = 1, .bit = 23},			// All
+	{.msg = 1, .bit = 31},			// Album
+	{.msg = 1, .bit = 27},			// zwei Kreise
+	{.msg = 1, .bit = 35},			// Timer
+	{.msg = 1, .bit = 37},			// Record
+	{.msg = 1, .bit = 38},			// UBS
+	{.msg = 1, .bit = 36},			// Pop
+	{.msg = 1, .bit = 39},			// Jazz
+	{.msg = 1, .bit = 40},			// Classic
+	{.msg = 1, .bit = 43},			// Rock
+	{.msg = 2, .bit = 3},			// R-D-S
+	{.msg = 2, .bit = 15},			// Sleep
+	{.msg = 2, .bit = 27},			// PM
+	{.msg = 2, .bit = 36},			// FM
+	{.msg = 2, .bit = 39},			// MW
+	{.msg = 2, .bit = 37},			// MHz
+	{.msg = 2, .bit = 38},			// kHz
+	{.msg = 1, .bit = 13},			// dot
+	{.msg = 1, .bit = 14},			// Doppelpunkt
 };
 
 static const segdef_t * const display[] PROGMEM = {
@@ -290,3 +301,57 @@ static const uint16_t chars[] PROGMEM = {
 	0x0000,
 	0x3FFF,
 };
+
+static uint64_t memory[3];
+
+void LCD_Init()
+{
+	pt6524_Init();
+	backlight_Init();
+}
+
+void LCD_SetSymbol(symbols_t sym, bool enable)
+{
+	segdef_t s;
+	uint8_t d;
+
+	if(sym >= SYM_MAX)
+		return;
+
+	d = pgm_read_byte(&(symbols[sym]));
+	s = *(segdef_t*)&d;
+
+	if(enable)
+		memory[s.msg] |= (1UL << s.bit);
+	else
+		memory[s.msg] &= ~(1UL << s.bit);
+
+	pt6524_write_raw(memory, sizeof(memory), SEGMENT_COUNT);
+}
+
+void LCD_PutChar(char s, uint8_t pos)
+{
+
+}
+
+void LCD_PutString(const char *str, uint8_t pos)
+{
+
+}
+
+void LCD_PutString_P(const char *str, uint8_t pos)
+{
+
+}
+
+void LCD_Clear(void)
+{
+	memset(memory, 0, sizeof(memory));
+	pt6524_write_raw(memory, sizeof(memory), SEGMENT_COUNT);
+}
+
+void LCD_SetStandby(bool enable)
+{
+	backlight_change(!enable);
+	pt6524_set_standby(enable);
+}
