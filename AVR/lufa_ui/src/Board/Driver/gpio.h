@@ -23,8 +23,8 @@ typedef struct _gpio {
 #define gpio_sfr(_port, _pin)				\
 	(gpio_t){&DDR##_port, &PORT##_port, &PIN##_port, P##_port##_pin}
 
-#define GPIO_OUTPUT		TRUE
-#define GPIO_INPUT		FALSE
+#define GPIO_OUTPUT		true
+#define GPIO_INPUT		false
 
 // GPIO directions
 inline void gpio_direction(gpio_t io, bool output) __attribute__((__always_inline__));

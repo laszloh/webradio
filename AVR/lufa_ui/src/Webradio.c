@@ -39,8 +39,10 @@
 #undef CONCAT
 #include "irmp.h"
 
-#include "Board/Driver/pt6524.h"
+#include "Board/LCD.h"
+#include "Board/Buttons.h"
 #include "Board/Driver/backlight.h"
+#include "Board/Driver/pt6524.h"
 #include "Board/Driver/gpio.h"
 #include "Board/Driver/adc.h"
 
@@ -135,8 +137,7 @@ void SetupHardware(void)
 	clock_prescale_set(clock_div_1);
 
 	/* Hardware Initialization */
-	backlight_Init();
-	pt6524_Init();
+	LCD_Init();
 
 	irmp_init();
 	timer1_Init();
@@ -301,10 +302,9 @@ void ParseCommand(unsigned char c)
 
 void CDC_Task(void)
 {
-	static uint8_t idx = 0;
+	static bool print;
+	static uint8_t idx;
     uint32_t bytes;
-	char buf[64];
-	uint16_t adcRes;
 
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -330,33 +330,6 @@ void CDC_Task(void)
 	else if(Buttons_Released(BUTTONS_ADC))
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("    adc released\n\r"));
 
-
-//	sprintf(buf, "state: 0x%08lx\n\r", BUTTONS_ADC);
-//	CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
-
-
-#if 0
-	if(ADCSRA & _BV(ADIF)) {
-		uint16_t adc = ADCH;
-		ADCSRA |= _BV(ADIF);
-
-		if(cnt < 16) {
-			cnt++;
-			adcsum += adc;
-		} else {
-			cnt = 0;
-			adc = (adcsum >> 4);
-			adcsum = 0;
-
-			if(lastAdc != adc) {
-				sprintf(buf, "ADC: 0x%02X\n\r", adc);
-				CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
-				lastAdc = adc;
-			}
-		}
-	}
-#endif
-
     bytes = CDC_Device_BytesReceived(&VirtualSerial_CDC_Interface);
 
     while(bytes > 0) {
@@ -364,7 +337,20 @@ void CDC_Task(void)
         if(c >= 0) {
 			CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (uint8_t)c);
 			CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\n\r"));
-            ParseCommand(c);
+			if(c == 'p')
+				print ^= print;
+			
+			if(!print)
+				ParseCommand(c);
+			else {
+				if( c >= ' ' && c < 0xFE) {
+					LCD_PutChar(c, idx);
+					idx++;
+					if(idx >= 8)
+						idx = 0;
+				} else if(c == '\n' || c == '\r')
+					idx = 0;
+			}
 		}
         bytes--;
     }

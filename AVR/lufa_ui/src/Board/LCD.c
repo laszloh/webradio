@@ -306,7 +306,7 @@ static const uint16_t chars[] PROGMEM = {
 
 static uint64_t memory[3];
 
-static void setSegment(segdef_t s, bool state);
+static inline void setSegment(segdef_t s, bool state);
 
 void LCD_Init()
 {
@@ -360,7 +360,14 @@ uint8_t LCD_PutString(const char *str, uint8_t pos)
 
 uint8_t LCD_PutString_P(const char *str, uint8_t pos)
 {
+	char c = pgm_read_byte(str++);
 	
+	while(c) {
+		if(LCD_PutChar(c, pos++))
+			return 1;
+		c = pgm_read_byte(str++);
+	}
+	return 0;
 }
 
 void LCD_Clear(void)
@@ -376,7 +383,7 @@ void LCD_SetStandby(bool enable)
 	pt6524_write_raw(memory, sizeof(memory), SEGMENT_COUNT);
 }
 
-static void setSegment(segdef_t s, bool state)
+static inline void setSegment(segdef_t s, bool state)
 {
 	if(state)
 		memory[s.msg] |= (1ULL << s.bit);
