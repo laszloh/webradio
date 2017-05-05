@@ -48,7 +48,7 @@ void LCD_Init(void);
 
 void LCD_SetSymbol(symbols_t symbol, bool enable);
 
-uint8_t LCD_PutChar(char c, uint8_t pos);
+uint16_t LCD_PutChar(char c, uint8_t pos);
 
 uint8_t LCD_PutString(const char *str, uint8_t pos);
 

@@ -137,6 +137,8 @@ void SetupHardware(void)
 	/* Hardware Initialization */
 	LCD_Init();
 
+	LCD_SetSymbol(SYM_USB, true);
+
 	irmp_init();
 	timer1_Init();
 
@@ -291,13 +293,13 @@ void ParseCommand(unsigned char c)
 		break;
 
 	case 'h':
-		LCD_SetString_P(PSTR("Hello Wrld"));
+		LCD_PutString("Hello Wrld", 0);
 		break;
 
-	case 'p':
-	case 'P':
+	case 'b':
+	case 'B':
 		CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Entering bootloader...\n\r"));
-		Jump_To_Bootloader();
+		//Jump_To_Bootloader();
 		break;
 
 	case 'k':
@@ -313,9 +315,10 @@ void ParseCommand(unsigned char c)
 
 void CDC_Task(void)
 {
-	static bool print;
+	static uint8_t print;
 	static uint8_t idx;
     uint32_t bytes;
+	char buf[16];
 
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -348,14 +351,23 @@ void CDC_Task(void)
         if(c >= 0) {
 			CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (uint8_t)c);
 			CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\n\r"));
-			if(c == 'p')
-				print ^= print;
-			
+			if(c == 'p') {
+				print ^= 0x01;
+				CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("Print mode: "));
+				CDC_Device_SendByte(&VirtualSerial_CDC_Interface, '0' + print);
+				CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\n\r"));
+			}
+
 			if(!print)
 				ParseCommand(c);
 			else {
-				if( c >= ' ' && c < 0xFE) {
-					LCD_PutChar(c, idx);
+				if( c >= 0x20 && c <= 0xFE) {
+					uint16_t r = LCD_PutChar(c, idx);
+					sprintf(buf, "0x%04X\n\r", r);
+					CDC_Device_SendString(&VirtualSerial_CDC_Interface, buf);
+
+					CDC_Device_SendByte(&VirtualSerial_CDC_Interface, '0' + idx);
+					CDC_Device_SendString_P(&VirtualSerial_CDC_Interface, PSTR("\n\r"));
 					idx++;
 					if(idx >= 8)
 						idx = 0;
