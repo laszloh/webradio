@@ -52,6 +52,8 @@ typedef struct _frame {
 static void pt6524_write(pt6524_frame_t *buf);
 static void pt6524_framesetup(pt6524_frame_t *frame);
 
+static bool standby;
+
 void pt6524_Init(void)
 {
 	pt6524_frame_t frame;
@@ -85,9 +87,15 @@ void pt6524_write_raw(void *buffer, size_t size, uint16_t segments)
     }
 }
 
+void pt6524_set_standby(bool enable)
+{
+	standby = enable;
+}
+
 static void pt6524_framesetup(pt6524_frame_t *frame)
 {
 	memset(frame, 0, sizeof(pt6524_frame_t));
+	frame->bu = (standby) ? 0x01 : 0x00;
 }
 
 static void pt6524_write(pt6524_frame_t *buf) {

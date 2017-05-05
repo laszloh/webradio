@@ -41,21 +41,23 @@ typedef enum _symbols {
 	SYM_KHZ,
 	SYM_DOT,
 	SYM_DOUBLEPOINT,
+	SYM_MAX
 } symbols_t;
-
 
 void LCD_Init(void);
 
-void LCD_SetSymbol(symbols_t symb, bool state);
+void LCD_SetSymbol(symbols_t symbol, bool enable);
 
-void LCD_SetChar(char c, uint8_t position);
+uint8_t LCD_PutChar(char c, uint8_t pos);
 
-void LCD_SetString(const char* str);
+uint8_t LCD_PutString(const char *str, uint8_t pos);
 
-void LCD_SetString_P(const char* str);
+uint8_t LCD_PutString_P(const char *str, uint8_t pos);
+
+void LCD_SetBacklight(bool state);
 
 void LCD_Clear(void);
 
-void LCD_SetBacklight(bool state);
+void LCD_SetStandby(bool enable);
 
 #endif /* LCD_H_ */

@@ -5,9 +5,7 @@
  *  Author: Simon
  */
 
-#include <stdlib.h>
 #include <string.h>
-
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
@@ -17,6 +15,10 @@
 #include "Driver/backlight.h"
 
 #define LCD_SEGMENT_COUNT	156
+#define reinterpret(T,V) ({union{T a; typeof(V) b;} __x__; __x__.b=(V); __x__.a; })
+
+#define FIRST_FONT		0x20
+#define LAST_FONT		0x7E
 
 typedef struct _segdef {
 	uint8_t msg:2;
@@ -187,8 +189,8 @@ static const segdef_t symbols[] PROGMEM = {
 	{.msg = 1, .bit = 39},			// MW
 	{.msg = 1, .bit = 37},			// MHz
 	{.msg = 1, .bit = 38},			// kHz
-	{.msg = 3, .bit = 13},			// dot
-	{.msg = 3, .bit = 14},			// Doppelpunkt
+	{.msg = 2, .bit = 13},			// dot
+	{.msg = 2, .bit = 14},			// Doppelpunkt
 };
 
 static const segdef_t * const display[] PROGMEM = {
@@ -301,63 +303,94 @@ static const uint16_t chars[] PROGMEM = {
 	0x3FFF,
 };
 
-static uint64_t disp_mem[3];
+static uint64_t memory[3];
 
-static inline void SetElement(segdef_t e) __attribute__((always_inline));
-static inline void ClearElement(segdef_t e) __attribute__((always_inline));
+static inline void setSegment(segdef_t s, bool state);
 
-void LCD_Init(void)
+void LCD_Init()
 {
 	pt6524_Init();
 	backlight_Init();
-
-	LCD_Clear();
-	backlight_clear();
 }
 
-void LCD_SetSymbol(symbols_t symb, bool state)
+void LCD_SetSymbol(symbols_t sym, bool enable)
 {
-	uint8_t pgm = pgm_read_byte(&(symbols[symb]));
-	if(state)
-		SetElement(*(segdef_t*)&pgm);
-	else
-		ClearElement(*(segdef_t*)&pgm);
-	pt6524_write_raw((void*)disp_mem, sizeof(disp_mem), LCD_SEGMENT_COUNT);
+	uint8_t d;
+
+	if(sym >= SYM_MAX)
+		return;
+
+	d = pgm_read_byte(&(symbols[sym]));
+	setSegment(reinterpret(segdef_t, d), enable);
+
+	pt6524_write_raw(memory, sizeof(memory), SEGMENT_COUNT);
 }
 
-void LCD_SetChar(char c, uint8_t position)
+uint8_t LCD_PutChar(char c, uint8_t pos)
 {
+	uint8_t i;
+	segdef_t *character;
+	uint16_t font;
 
+	if( (pos >= 8) || (c < FIRST_FONT) || (c > LAST_FONT) )
+		return 1;
+	
+	font = pgm_read_word(&(chars[c-0x20]));
+	character = (segdef_t *)pgm_read_word(&(display[pos]));
+	
+	for(i=0;i<14;i++) {
+		uint8_t d = pgm_read_byte(&(character[i]));
+		
+		font >>= i;
+		setSegment(reinterpret(segdef_t, d), font & 0x01);
+	}
+	
+	return 0;
 }
 
-void LCD_SetString(const char* str)
+uint8_t LCD_PutString(const char *str, uint8_t pos)
 {
-
+	while(*str) {
+		if(LCD_PutChar(*str, pos++))
+			return 1;
+	}
+	return 0;
 }
 
-void LCD_SetString_P(const char* str)
+uint8_t LCD_PutString_P(const char *str, uint8_t pos)
 {
-
+	char c = pgm_read_byte(str++);
+	
+	while(c) {
+		if(LCD_PutChar(c, pos++))
+			return 1;
+		c = pgm_read_byte(str++);
+	}
+	return 0;
 }
 
 void LCD_Clear(void)
 {
-	memset(disp_mem, 0, sizeof(disp_mem));
-	pt6524_write_raw((void*)disp_mem, sizeof(disp_mem), LCD_SEGMENT_COUNT);
+	memset(memory, 0, sizeof(memory));
+	pt6524_write_raw(memory, sizeof(memory), SEGMENT_COUNT);
 }
 
 void LCD_SetBacklight(bool state)
 {
-	backlight_change(state);
+    backlight_change(state);
 }
 
-static inline void SetElement(segdef_t e)
+void LCD_SetStandby(bool enable)
 {
-	disp_mem[e.msg] |= (1UL << e.bit);
+	backlight_change(!enable);
+	pt6524_set_standby(enable);
+	pt6524_write_raw(memory, sizeof(memory), SEGMENT_COUNT);
 }
 
-static inline void ClearElement(segdef_t e)
+static inline void setSegment(segdef_t s, bool state)
 {
-	disp_mem[e.msg] &= ~(1UL << e.bit);
+	if(state)
+		memory[s.msg] |= (1ULL << s.bit);
+	else
+		memory[s.msg] &= ~(1ULL << s.bit);
 }
-

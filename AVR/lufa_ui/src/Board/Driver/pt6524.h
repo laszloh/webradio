@@ -23,6 +23,16 @@
 //  Created by Laszlo Hegedues on 21.03.2017.
 //
 
+#ifndef pt6524_h__
+#define pt6524_h__
+
+#include <stdbool.h>
+
 void pt6524_Init(void);
 
 void pt6524_write_raw(void *buffer, size_t size, uint16_t segments);
+
+void pt6524_set_standby(bool enable);
+
+#endif // pt6524_h__
+
