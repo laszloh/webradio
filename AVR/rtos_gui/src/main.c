@@ -163,7 +163,7 @@ static void vGuiTask( void *pvParameters )
 			LCD_SetSymbol(s, true);
 		}
 
-		vTaskDelay(4);
+		vTaskDelay(5);
 	}
 }
 
@@ -366,9 +366,16 @@ void die(uint8_t count)
 {
 	uint8_t i;
 
-	LEDs_Init();
 	cli();
 
+	LEDs_Init();
+	LCD_Init();
+	LCD_Clear();
+	LCD_SetStandby(false);
+	
+	LCD_PutChar('F', 0);
+	LCD_PutChar('0' + count, 1);
+	
 	while(1) {
 		for(i=0;i<count;i++) {
 			LEDs_TurnOnLEDs(LEDS_ALL_LEDS);

@@ -48,11 +48,11 @@ void LCD_Init(void);
 
 void LCD_SetSymbol(symbols_t symbol, bool enable);
 
-void LCD_PutChar(char s, uint8_t pos);
+uint8_t LCD_PutChar(char c, uint8_t pos);
 
-void LCD_PutString(const char *str, uint8_t pos);
+uint8_t LCD_PutString(const char *str, uint8_t pos);
 
-void LCD_PutString_P(const char *str, uint8_t pos);
+uint8_t LCD_PutString_P(const char *str, uint8_t pos);
 
 void LCD_Clear(void);
 
