@@ -18,13 +18,19 @@ F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
 TARGET       = Webradio
-SRC          = $(TARGET).c Descriptors.c $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
-SRC         += src/irmp/irmp.c  
-SRC         += src/Board/Buttons.c
-SRC         += src/Board/Driver/pt6524.c src/Board/Driver/bootloader.c src/Board/Driver/adc.c
-LUFA_PATH    = src/lufa/LUFA
-CC_FLAGS     = -flto -fshort-enums -DIRMP_USE_AS_LIB -DUSE_LUFA_CONFIG_HEADER -Isrc/config/ -Isrc -Isrc/irmp -include "global.h"
+
+LUFA_PATH    = lib/lufa/LUFA
+IRMP_PATH    = lib/irmp
+SRC_PATH     = src
+
+CC_FLAGS     = -flto -fshort-enums -DIRMP_USE_AS_LIB -DUSE_LUFA_CONFIG_HEADER -I$(SRC_PATH)/config/ -I$(SRC_PATH) -I$(IRMP_PATH) -include "global.h"
 LD_FLAGS     = -flto -Os
+
+SRC          = $(SRC_PATH)/$(TARGET).c $(SRC_PATH)/Descriptors.c 
+SRC         += $(SRC_PATH)/Board/Buttons.c $(SRC_PATH)/Board/LCD.c
+SRC         += $(SRC_PATH)/Board/Driver/pt6524.c $(SRC_PATH)/Board/Driver/bootloader.c $(SRC_PATH)/Board/Driver/adc.c
+SRC         += $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
+SRC         += $(IRMP_PATH)/irmp.c  
 
 # Default target
 all:
