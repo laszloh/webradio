@@ -49,9 +49,18 @@
 		#include <LUFA/Drivers/Board/LEDs.h>
 		#include <LUFA/Drivers/Board/Buttons.h>
 		#include <LUFA/Drivers/Board/Board.h>
-		
+
 		#include <LUFA/Drivers/USB/USB.h>
 		#include <LUFA/Platform/Platform.h>
+
+	/* Typedefs: */
+		typedef struct {
+			uint8_t numpad:4;
+			uint8_t volume:2;
+			uint8_t res:2;
+			uint8_t buttons;
+		} ATTR_PACKED USB_RemoteReport_Data_t;
+
 
 	/* Macros: */
 		/** LED mask for the library LED driver, to indicate that the USB interface is not ready. */
@@ -75,7 +84,19 @@
 		void EVENT_USB_Device_Disconnect(void);
 		void EVENT_USB_Device_ConfigurationChanged(void);
 		void EVENT_USB_Device_ControlRequest(void);
-        
+		void EVENT_USB_Device_StartOfFrame(void);
+
+		bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+													uint8_t* const ReportID,
+													const uint8_t ReportType,
+													void* ReportData,
+													uint16_t* const ReportSize);
+		void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+													const uint8_t ReportID,
+													const uint8_t ReportType,
+													const void* ReportData,
+													const uint16_t ReportSize);
+
         void ParseCommand(unsigned char c);
 
 #endif
