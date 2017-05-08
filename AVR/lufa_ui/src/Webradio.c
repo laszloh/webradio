@@ -190,20 +190,9 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          void* ReportData,
                                          uint16_t* const ReportSize)
 {
+	bool force;
 
-	if((*ReportID & 0xF0)  == HID_REPORTID_RemoteReport) {
-		// generate a remote report
-		USB_RemoteReport_Data_t *remoteReport = (USB_RemoteReport_Data_t*)ReportData;
-
-        if(Buttons_GetStatus(BUTTONS_ADC_VOLP))
-            remoteReport->bits.volup = 1;
-        else if(Buttons_GetStatus(BUTTONS_ADC_VOLN))
-            remoteReport->bits.voldown = -1;
-
-        remoteReport->numpad = 2;
-
-		*ReportSize = sizeof(USB_RemoteReport_Data_t);
-	} else if ((*ReportID & 0xF0)  == HID_REPORTID_DisplayReport) {
+	if ((*ReportID & 0xF0)  == HID_REPORTID_DisplayReport) {
 		// generate a display report
 		if(ReportType == HID_REPORT_ITEM_Feature) {
 			switch((*ReportID & 0x0F)) {
@@ -244,7 +233,19 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 		}
 	}
 
-	return false;
+	// generate a remote report
+	USB_RemoteReport_Data_t *remoteReport = (USB_RemoteReport_Data_t*)ReportData;
+
+	if(Buttons_GetStatus(BUTTONS_ADC_VOLP))
+		remoteReport->bits.volup = 1;
+	else if(Buttons_GetStatus(BUTTONS_ADC_VOLN))
+		remoteReport->bits.voldown = -1;
+
+	remoteReport->numpad = 2;
+
+	*ReportSize = sizeof(USB_RemoteReport_Data_t);
+	*ReportID = HID_REPORTID_RemoteReport;
+	return force;
 }
 
 /** HID class driver callback function for the processing of HID reports from the host.
