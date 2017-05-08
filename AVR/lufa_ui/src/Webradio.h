@@ -55,10 +55,23 @@
 
 	/* Typedefs: */
 		typedef struct {
-			uint8_t numpad:4;
-			uint8_t volume:2;
-			uint8_t res:2;
-			uint8_t buttons;
+			uint8_t numpad;
+			union {
+				uint16_t buttons;
+				struct {
+					uint8_t mute:1;
+					uint8_t power:1;
+					uint8_t sleep:1;
+					uint8_t play:1;
+					uint8_t next:1;
+					uint8_t prev:1;
+					uint8_t mode:1;
+					uint8_t repeat:1;
+					uint8_t volup:1;
+					uint8_t voldown:1;
+					uint8_t res:6;
+				} bits;
+			};
 		} ATTR_PACKED USB_RemoteReport_Data_t;
 
 		typedef struct {
@@ -85,6 +98,7 @@
 			uint8_t data[4];
 		} ATTR_PACKED USB_DisplayCharacters_t;
 		
+        
 	/* Macros: */
 		/** LED mask for the library LED driver, to indicate that the USB interface is not ready. */
 		#define LEDMASK_USB_NOTREADY      (0)

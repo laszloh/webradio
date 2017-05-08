@@ -52,9 +52,9 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 			HID_RI_USAGE_MAXIMUM(8, 0x0A),	/* Button 10 */
 			HID_RI_LOGICAL_MINIMUM(8, 1),
 			HID_RI_LOGICAL_MAXIMUM(8, 10),
-			HID_RI_REPORT_SIZE(8, 4),
+			HID_RI_REPORT_SIZE(8, 8),
 			HID_RI_REPORT_COUNT(8, 1),
-			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
 		HID_RI_END_COLLECTION(0),
 		HID_RI_USAGE_PAGE(8, 0x0C), /* Consumer Devices */
 		HID_RI_COLLECTION(8, 0x02),	/* logical */
@@ -73,7 +73,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 			HID_RI_REPORT_SIZE(8, 1),
 			HID_RI_REPORT_COUNT(8, 10),
 			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-		HID_RI_END_COLLECTION(0),
+        HID_RI_END_COLLECTION(0),
 //		HID_RI_REPORT_SIZE(8, 1),
 		HID_RI_REPORT_COUNT(8, 6),
 		HID_RI_INPUT(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
@@ -183,7 +183,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.ConfigurationNumber    = 1,
 			.ConfigurationStrIndex  = NO_DESCRIPTOR,
 
-			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
+			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED),
 
 			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
 		},
