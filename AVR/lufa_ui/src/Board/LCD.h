@@ -60,4 +60,8 @@ void LCD_Clear(void);
 
 void LCD_SetStandby(bool enable);
 
+void LCD_SetCursor(uint8_t pos);
+
+uint8_t LCD_GetCursor(void);
+
 #endif /* LCD_H_ */

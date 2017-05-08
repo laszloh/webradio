@@ -190,18 +190,61 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          void* ReportData,
                                          uint16_t* const ReportSize)
 {
-	USB_RemoteReport_Data_t *remoteReport = (USB_RemoteReport_Data_t*)ReportData;
+	
+	if((*ReportID & 0xF0)  == HID_REPORTID_RemoteReport) {
+		// generate a remote report
+		USB_RemoteReport_Data_t *remoteReport = (USB_RemoteReport_Data_t*)ReportData;
 
-	if(Buttons_GetStatus(BUTTONS_ADC_VOLP))
-		remoteReport->volume = 1;
-	else if(Buttons_GetStatus(BUTTONS_ADC_VOLN))
-		remoteReport->volume = -1;
+		if(Buttons_GetStatus(BUTTONS_ADC_VOLP))
+			remoteReport->volume = 1;
+		else if(Buttons_GetStatus(BUTTONS_ADC_VOLN))
+			remoteReport->volume = -1;
 
-	remoteReport->numpad = 10;
+		remoteReport->numpad = 10;
+		*ReportSize = sizeof(USB_RemoteReport_Data_t);
 
-	*ReportID   = HID_REPORTID_RemoteReport;
-	*ReportSize = sizeof(USB_RemoteReport_Data_t);
-	return true;
+	} else if ((*ReportID & 0xF0)  == HID_REPORTID_DisplayReport) {
+		// generate a display report
+		if(ReportType == HID_REPORT_ITEM_Feature) {
+			switch((*ReportID & 0x0F)) {
+				case 0x01: 
+				{
+					USB_DisplayFeature_t* r = (USB_DisplayFeature_t*) ReportData;
+					*ReportSize = sizeof(USB_DisplayFeature_t);
+					
+					r->rows = 1;
+					r->colums = 8;
+					r->features.byte = 0x0F;
+				}	
+					break;
+				case 0x02:
+				{
+					USB_DisplayCursorPosition_t* r = (USB_DisplayCursorPosition_t*) ReportData;
+					*ReportSize = sizeof(USB_DisplayCursorPosition_t);
+					
+					r->row = 1;
+					r->column = LCD_GetCursor();
+				}
+					break;
+				case 0x03:
+				{
+					USB_DisplayCharacters_t* r = (USB_DisplayCharacters_t*) ReportData;
+					*ReportSize = sizeof(USB_DisplayCharacters_t);
+					
+					r->data[0] = 'H';
+					r->data[1] = 'e';
+					r->data[2] = 'W';
+					r->data[3] = 'o';
+				}
+					break;
+				default:
+					break;
+			}
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 /** HID class driver callback function for the processing of HID reports from the host.

@@ -42,105 +42,101 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 {
 	/* Remote Report */
 	HID_RI_USAGE_PAGE(8, 0x0C), /* Consumer Devices */
-	HID_RI_USAGE(8, 0x01),		/* Keypad */
+	HID_RI_USAGE(8, 0x01),		/* Consumer Control */
 	HID_RI_COLLECTION(8, 0x01), /* Application */
 		HID_RI_REPORT_ID(8, HID_REPORTID_RemoteReport),
 		HID_RI_USAGE(8, 0x02),		/* Numeric Key Pad */
 		HID_RI_COLLECTION(8, 0x02),	/* logical */
 			HID_RI_USAGE_PAGE(8, 0x09),		/* Buttons */
-			HID_RI_USAGE_MINIMUM(8, 1),	/* Button 1 */
-			HID_RI_USAGE_MAXIMUM(8, 10),	/* Button 10 */
+			HID_RI_USAGE_MINIMUM(8, 0x01),	/* Button 1 */
+			HID_RI_USAGE_MAXIMUM(8, 0x0A),	/* Button 10 */
 			HID_RI_LOGICAL_MINIMUM(8, 1),
 			HID_RI_LOGICAL_MAXIMUM(8, 10),
 			HID_RI_REPORT_SIZE(8, 4),
 			HID_RI_REPORT_COUNT(8, 1),
 			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
 		HID_RI_END_COLLECTION(0),
-		HID_RI_USAGE_PAGE(8, 0x0C),	/* Consumer Devices */
-		HID_RI_USAGE(8, 0xE0),		/* Volume */
-		HID_RI_LOGICAL_MINIMUM(8, -1),
-		HID_RI_LOGICAL_MAXIMUM(8, 1),
-		HID_RI_REPORT_SIZE(8, 2),
-		HID_RI_REPORT_COUNT(8, 1),
-		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE | HID_IOF_NULLSTATE),
-		HID_RI_REPORT_SIZE(8, 2),
-		HID_RI_REPORT_COUNT(8, 1),
+		HID_RI_USAGE_PAGE(8, 0x0C), /* Consumer Devices */
+		HID_RI_COLLECTION(8, 0x02),	/* logical */
+			HID_RI_USAGE(8, 0xE2),		/* Mute */
+			HID_RI_USAGE(8, 0x30),		/* Power */
+			HID_RI_USAGE(8, 0x34),		/* Sleep Mode */
+			HID_RI_USAGE(8, 0xCD),		/* Play/Pause */
+			HID_RI_USAGE(8, 0xB5),		/* Scan Next. Track */
+			HID_RI_USAGE(8, 0xB6),		/* Scan Prev. Track */
+			HID_RI_USAGE(8, 0x82),		/* Mode Step */
+			HID_RI_USAGE(8, 0xBC),		/* Repeat */
+			HID_RI_USAGE(8, 0xE9),		/* Volume up */
+			HID_RI_USAGE(8, 0xEA),		/* Volume down */
+			HID_RI_LOGICAL_MINIMUM(8, 0),
+			HID_RI_LOGICAL_MAXIMUM(8, 1),
+			HID_RI_REPORT_SIZE(8, 1),
+			HID_RI_REPORT_COUNT(8, 10),
+			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+		HID_RI_END_COLLECTION(0),
+//		HID_RI_REPORT_SIZE(8, 1),
+		HID_RI_REPORT_COUNT(8, 6),
 		HID_RI_INPUT(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-		HID_RI_USAGE(8, 0xE2),		/* Mute */
-		HID_RI_USAGE(8, 0x30),		/* Power */
-		HID_RI_USAGE(8, 0x34),		/* Sleep Mode */
-		HID_RI_USAGE(8, 0xCD),		/* Play/Pause */
-		HID_RI_USAGE(8, 0xB5),		/* Scan Next. Track */
-		HID_RI_USAGE(8, 0xB6),		/* Scan Prev. Track */
-//		HID_RI_USAGE(8, 0x),		/* Equalizer */
-		HID_RI_USAGE(8, 0x82),		/* Mode Step */
-		HID_RI_USAGE(8, 0xBC),		/* Repeat */
-		HID_RI_LOGICAL_MINIMUM(8, 1),
-		HID_RI_LOGICAL_MAXIMUM(8, 8),
-		HID_RI_REPORT_SIZE(8, 4),
-		HID_RI_REPORT_COUNT(8, 1),
-		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
-		HID_RI_LOGICAL_MINIMUM(8, 2),
-		HID_RI_INPUT(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-	HID_RI_END_COLLECTION(0),
 
-#if 0
-	/* Display Report */
-	HID_RI_USAGE_PAGE(8, 0x14), /* Alphanumeric Display */
-	HID_RI_USAGE(8, 0x01),		/* Alphanumeric Display */
-	HID_RI_COLLECTION(8, 0x01), /* Application */
-		HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport),
-		HID_RI_USAGE(8, 0x20),		/* Display Attributes Report */
-		HID_RI_COLLECTION(8, 0x02),	/* logical */
-			HID_RI_USAGE(8, 0x35),	/* Rows */
-			HID_RI_USAGE(8, 0x36),	/* Columns */
-			HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport+1),
-			HID_RI_LOGICAL_MAXIMUM(8, 15),
-			HID_RI_REPORT_SIZE(8, 0x04),
-			HID_RI_REPORT_COUNT(8, 0x02),
-			HID_RI_FEATURE(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-			HID_RI_REPORT_SIZE(8, 0x01),
-			HID_RI_REPORT_COUNT(8, 0x04),
-			HID_RI_LOGICAL_MAXIMUM(8, 1),
-			HID_RI_USAGE(8, 0x21),	/* ASCII Charset */
-			HID_RI_USAGE(8, 0x22),	/* Data Readback */
-			HID_RI_USAGE(8, 0x29),	/* Vertical Scroll */
-			HID_RI_USAGE(8, 0x44),	/* Font 14-segment */
-			HID_RI_FEATURE(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-		HID_RI_END_COLLECTION(0),
-		HID_RI_REPORT_SIZE(8, 0x08),
-		HID_RI_REPORT_COUNT(8, 0x01),
-		HID_RI_LOGICAL_MAXIMUM(8, 2),
-		HID_RI_USAGE(8, 0x2D),	/* Display Status */
-		HID_RI_COLLECTION(8, 0x02),	/* logical */
-			HID_RI_USAGE(8, 0x2E),	/* Stat Not Ready */
-			HID_RI_USAGE(8, 0x2F),	/* Stat Ready */
-			HID_RI_USAGE(8, 0x30),	/* Err Not a loadable character */
-			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE | HID_IOF_NULLSTATE),
-		HID_RI_END_COLLECTION(0),
-		HID_RI_USAGE(8, 0x32),	/* Cursor Position Report */
-		HID_RI_COLLECTION(8, 0x02),	/* logical */
-			HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport+2),
-			HID_RI_REPORT_SIZE(8, 0x04),
-			HID_RI_REPORT_COUNT(8, 0x01),
-			HID_RI_LOGICAL_MAXIMUM(8, 8),
-			HID_RI_USAGE(8, 0x34),	/* Column */
-			HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NO_PREFERRED_STATE),
-			HID_RI_LOGICAL_MAXIMUM(8, 1),
-			HID_RI_USAGE(8, 0x33),	/* Row */
-			HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NO_PREFERRED_STATE),
-		HID_RI_END_COLLECTION(0),
-		HID_RI_USAGE(8, 0x2B),	/* Character Report */
-		HID_RI_COLLECTION(8, 0x02),	/* logical */
-			HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport+3),
+		/* Display Report */
+		HID_RI_USAGE_PAGE(8, 0x14), /* Alphanumeric Display */
+		HID_RI_USAGE(8, 0x01),		/* Alphanumeric Display */
+		HID_RI_LOGICAL_MINIMUM(8, 0),
+		HID_RI_COLLECTION(8, 0x02), /* Logical */
+			HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport),
+			HID_RI_USAGE(8, 0x20),		/* Display Attributes Report */
+			HID_RI_COLLECTION(8, 0x02),	/* logical */
+				HID_RI_USAGE(8, 0x35),	/* Rows */
+				HID_RI_USAGE(8, 0x36),	/* Columns */
+				HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport+1),
+				HID_RI_LOGICAL_MAXIMUM(8, 15),
+				HID_RI_REPORT_SIZE(8, 0x04),
+				HID_RI_REPORT_COUNT(8, 0x02),
+				HID_RI_FEATURE(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+				HID_RI_REPORT_SIZE(8, 0x01),
+				HID_RI_REPORT_COUNT(8, 0x04),
+				HID_RI_LOGICAL_MAXIMUM(8, 1),
+				HID_RI_USAGE(8, 0x21),	/* ASCII Charset */
+				HID_RI_USAGE(8, 0x22),	/* Data Readback */
+				HID_RI_USAGE(8, 0x29),	/* Vertical Scroll */
+				HID_RI_USAGE(8, 0x44),	/* Font 14-segment */
+				HID_RI_FEATURE(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+				HID_RI_REPORT_COUNT(8, 0x04),
+				HID_RI_FEATURE(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+			HID_RI_END_COLLECTION(0),
 			HID_RI_REPORT_SIZE(8, 0x08),
-			HID_RI_REPORT_COUNT(8, 0x04),
-			HID_RI_LOGICAL_MAXIMUM(8, 126),
-			HID_RI_USAGE(8, 0x2C),	/* Display Data */
-			HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_BUFFERED_BYTES),
+			HID_RI_REPORT_COUNT(8, 0x01),
+			HID_RI_LOGICAL_MAXIMUM(8, 2),
+			HID_RI_USAGE(8, 0x2D),	/* Display Status */
+			HID_RI_COLLECTION(8, 0x02),	/* logical */
+				HID_RI_USAGE(8, 0x2E),	/* Stat Not Ready */
+				HID_RI_USAGE(8, 0x2F),	/* Stat Ready */
+				HID_RI_USAGE(8, 0x30),	/* Err Not a loadable character */
+				HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE | HID_IOF_NULLSTATE),
+			HID_RI_END_COLLECTION(0),
+			HID_RI_USAGE(8, 0x32),	/* Cursor Position Report */
+			HID_RI_COLLECTION(8, 0x02),	/* logical */
+				HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport+2),
+				HID_RI_REPORT_SIZE(8, 0x04),
+				HID_RI_REPORT_COUNT(8, 0x01),
+				HID_RI_LOGICAL_MAXIMUM(8, 7),
+				HID_RI_USAGE(8, 0x34),	/* Column */
+				HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NO_PREFERRED_STATE),
+				HID_RI_LOGICAL_MAXIMUM(8, 1),
+				HID_RI_USAGE(8, 0x33),	/* Row */
+				HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NO_PREFERRED_STATE),
+			HID_RI_END_COLLECTION(0),
+			HID_RI_USAGE(8, 0x2B),	/* Character Report */
+			HID_RI_COLLECTION(8, 0x02),	/* logical */
+				HID_RI_REPORT_ID(8, HID_REPORTID_DisplayReport+3),
+				HID_RI_REPORT_SIZE(8, 0x08),
+				HID_RI_REPORT_COUNT(8, 0x04),
+				HID_RI_LOGICAL_MAXIMUM(8, 126),
+				HID_RI_USAGE(8, 0x2C),	/* Display Data */
+				HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_BUFFERED_BYTES),
+			HID_RI_END_COLLECTION(0),
 		HID_RI_END_COLLECTION(0),
 	HID_RI_END_COLLECTION(0),
-#endif
 };
 
 /** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall

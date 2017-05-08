@@ -61,7 +61,30 @@
 			uint8_t buttons;
 		} ATTR_PACKED USB_RemoteReport_Data_t;
 
+		typedef struct {
+			uint8_t rows:4;
+			uint8_t colums:4;
+			union {
+				uint8_t byte;
+				struct {
+					uint8_t ascii:1;
+					uint8_t readback:1;
+					uint8_t vscroll:1;
+					uint8_t font14:1;
+					uint8_t res:4;
+				};
+			} features;
+		} ATTR_PACKED USB_DisplayFeature_t;
 
+		typedef struct {
+			uint8_t column:4;
+			uint8_t row:4;
+		} ATTR_PACKED USB_DisplayCursorPosition_t;
+		
+		typedef struct {
+			uint8_t data[4];
+		} ATTR_PACKED USB_DisplayCharacters_t;
+		
 	/* Macros: */
 		/** LED mask for the library LED driver, to indicate that the USB interface is not ready. */
 		#define LEDMASK_USB_NOTREADY      (0)

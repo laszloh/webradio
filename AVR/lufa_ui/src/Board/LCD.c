@@ -304,6 +304,7 @@ static const uint16_t chars[] PROGMEM = {
 };
 
 static uint64_t memory[3];
+static uint8_t cursor;
 
 static inline void setSegment(segdef_t s, bool state);
 
@@ -386,6 +387,17 @@ void LCD_SetStandby(bool enable)
 	backlight_change(enable);
 	pt6524_set_standby(enable);
 	pt6524_write_raw(memory, sizeof(memory), LCD_SEGMENT_COUNT);
+}
+
+void LCD_SetCursor(uint8_t pos)
+{
+	if(pos < 8)
+		cursor = pos;
+}
+
+uint8_t LCD_GetCursor(void)
+{
+	return cursor;
 }
 
 static inline void setSegment(segdef_t s, bool state)
