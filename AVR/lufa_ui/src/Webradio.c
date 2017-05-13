@@ -121,7 +121,6 @@ void SetupHardware(void)
 
 	/* Hardware Initialization */
 	LCD_Init();
-	LCD_SetSymbol(SYM_USB, true);
 
 	irmp_init();
 	timer1_Init();
@@ -275,7 +274,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
  *  \param[in] ReportData  Pointer to a buffer where the received report has been stored
  *  \param[in] ReportSize  Size in bytes of the received HID report
  */
-void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+void __attribute__ ((noinline)) CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
                                           const uint8_t ReportID,
                                           const uint8_t ReportType,
                                           const void* ReportData,
@@ -286,40 +285,38 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 
 	// we only process character reports
 	switch(ReportID & 0x0F) {
-		case 0x03:
+		case HID_DISPLAYSUBID_charreport:
 		{
 			// sanity check
-			if(ReportSize != sizeof(USB_DisplayCharacters_t)) {
-				char buf[3];
-				itoh(buf, 2, ReportSize);
-				LCD_PutString_P(PSTR("3 0x") ,0);
-				LCD_PutString(buf, 4);
+			if(ReportSize != sizeof(USB_DisplayCharacters_t))
 				return;
-			}
 			USB_DisplayCharacters_t *r = (USB_DisplayCharacters_t*)ReportData;
+			for(uint8_t i=SYM_CDROM;i<SYM_MAX;i++) {
+				bool en = (r->symbols & (1UL << i));
+				LCD_SetSymbol(i, en);
+			}
 
 			LCD_PutString(r->chars, 0);
 		}
 		break;
 
-		case 0x04:
+		case HID_DISPLAYSUBID_displayreport:
 		{
-			// sanity check
-#if 0
-			if(ReportSize != sizeof(USB_DisplayCharacters_t)) {
-				char buf[3];
-				itoh(buf, 2, ReportSize);
-				LCD_PutString_P(PSTR("4 0x") ,0);
-				LCD_PutString(buf, 4);
-				return;
-			}
-#endif
-			USB_DisplaySymbols_t *r = (USB_DisplaySymbols_t*)ReportData;
+			char buf[3];
 
-			for(uint8_t i=SYM_CDROM;i<SYM_MAX;i++) {
-				bool en = (r->symbols & (1UL << i));
-				LCD_SetSymbol(i, en);
-			}
+			// sanity check
+			if(ReportSize != sizeof(USB_DisplayControl_t))
+				return;
+			USB_DisplayControl_t *r = (USB_DisplayControl_t*)ReportData;
+
+			itoh(buf, 2, r->state);
+			LCD_PutString_P(PSTR("0x"), 0);
+			LCD_PutString(buf, 2);
+
+			if(r->clear)
+				LCD_Clear();
+
+			LCD_SetState((display_state_t)r->state);
 		}
 		break;
 

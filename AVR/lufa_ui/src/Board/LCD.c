@@ -162,11 +162,11 @@ static const segdef_t character8[] PROGMEM = {
 };
 
 static const segdef_t symbols[] PROGMEM = {
-	{.msg = 0, .bit = 11},			// Kreis Punkt
+	{.msg = 0, .bit = 11},			// CD-Rom
 	{.msg = 0, .bit = 15},			// USB
 	{.msg = 0, .bit = 27},			// SD-Karte
-	{.msg = 0, .bit = 31},			// Antenne
-	{.msg = 0, .bit = 43},			// Kreis mit Pfeil
+	{.msg = 0, .bit = 31},			// Tuner
+	{.msg = 0, .bit = 43},			// AUX In
 	{.msg = 0, .bit = 47},			// Kasette
 	{.msg = 2, .bit = 7},			// Random
 	{.msg = 2, .bit = 11},			// Prog
@@ -313,7 +313,7 @@ void LCD_Init()
 	pt6524_Init();
 	backlight_Init();
 
-	LCD_SetStandby(false);
+	LCD_SetState(DISP_STATE_active);
 }
 
 void LCD_SetSymbol(symbols_t sym, bool enable)
@@ -377,15 +377,28 @@ void LCD_Clear(void)
 	pt6524_write_raw(memory, sizeof(memory), LCD_SEGMENT_COUNT);
 }
 
-void LCD_SetBacklight(bool state)
-{
-    backlight_change(state);
-}
 
-void LCD_SetStandby(bool enable)
+void LCD_SetState(display_state_t state)
 {
-	backlight_change(enable);
-	pt6524_set_standby(enable);
+	bool bl = false;
+	bool disp = false;
+
+	switch(state)
+	{
+		case DISP_STATE_off:
+			disp = true;
+			//fall through
+
+		case DISP_STATE_blOff:
+			bl = true;
+			break;
+
+		default:
+			break;
+	}
+
+	backlight_change(bl);
+	pt6524_set_standby(disp);
 	pt6524_write_raw(memory, sizeof(memory), LCD_SEGMENT_COUNT);
 }
 

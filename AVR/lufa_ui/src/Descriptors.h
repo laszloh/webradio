@@ -121,7 +121,7 @@
 			HID_DISPLAYSUBID_features = 0x01,
 			HID_DISPLAYSUBID_cursorpos,
 			HID_DISPLAYSUBID_charreport,
-			HID_DISPLAYSUBID_symbolreport,
+			HID_DISPLAYSUBID_displayreport,
 		} HID_DisplayReport_SUBIDs;
 
 	/* Function Prototypes: */

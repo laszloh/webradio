@@ -91,12 +91,13 @@
 
 		typedef struct {
 			char chars[8];
+			uint32_t symbols;
 		} ATTR_PACKED USB_DisplayCharacters_t;
 
 		typedef struct {
-			uint32_t symbols;
-		} ATTR_PACKED USB_DisplaySymbols_t;
-
+			uint8_t clear:1;
+			uint8_t state:4;
+		} ATTR_PACKED USB_DisplayControl_t;
 
 	/* Macros: */
 		/** LED mask for the library LED driver, to indicate that the USB interface is not ready. */

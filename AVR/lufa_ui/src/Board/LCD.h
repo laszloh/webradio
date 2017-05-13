@@ -17,6 +17,7 @@ typedef enum _symbols {
 	SYM_USB,
 	SYM_SDCARD,
 	SYM_TUNER,
+	SYM_AUX,
 	SYM_CASETTE,
 	SYM_RAND,
 	SYM_PROG,
@@ -44,6 +45,13 @@ typedef enum _symbols {
 	SYM_MAX
 } symbols_t;
 
+typedef enum {
+	DISP_STATE_ignore = 0x00,
+	DISP_STATE_active,
+	DISP_STATE_blOff,
+	DISP_STATE_off
+} display_state_t;
+
 void LCD_Init(void);
 
 void LCD_SetSymbol(symbols_t symbol, bool enable);
@@ -54,11 +62,9 @@ uint8_t LCD_PutString(const char *str, uint8_t pos);
 
 uint8_t LCD_PutString_P(const char *str, uint8_t pos);
 
-void LCD_SetBacklight(bool state);
-
 void LCD_Clear(void);
 
-void LCD_SetStandby(bool enable);
+void LCD_SetState(display_state_t state);
 
 void LCD_SetCursor(uint8_t pos);
 
