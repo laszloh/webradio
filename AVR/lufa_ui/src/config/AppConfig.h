@@ -43,14 +43,12 @@
 #ifndef _APP_CONFIG_H_
 #define _APP_CONFIG_H_
 
-	#define GENERIC_REPORT_SIZE       8
-	
 	#define IR_PORT		PORTC
 	#define IR_BIT		PC6
-	
+
 	#define BL_PORT		PORTE
 	#define BL_BIT		PE6
-	
+
 	#define PWR_PORT	PORTB
 	#define PWR_BIT		PB6
 

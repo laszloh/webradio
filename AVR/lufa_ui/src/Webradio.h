@@ -55,50 +55,49 @@
 
 	/* Typedefs: */
 		typedef struct {
-			uint8_t numpad;
 			union {
 				uint16_t buttons;
 				struct {
-					uint8_t mute:1;
 					uint8_t power:1;
-					uint8_t sleep:1;
+					uint8_t source:1;
+					uint8_t presetp:1;
+					uint8_t presetn:1;
+					uint8_t ubs:1;
+					uint8_t volumep:1;
+					uint8_t volumen:1;
+					uint8_t program:1;
+					uint8_t previous:1;
+					uint8_t stop:1;
 					uint8_t play:1;
 					uint8_t next:1;
-					uint8_t prev:1;
-					uint8_t mode:1;
 					uint8_t repeat:1;
-					uint8_t volup:1;
-					uint8_t voldown:1;
-					uint8_t res:6;
+					uint8_t res:3;
 				} bits;
 			};
-		} ATTR_PACKED USB_RemoteReport_Data_t;
+		} ATTR_PACKED USB_ButtonReport_Data_t;
 
 		typedef struct {
-			uint8_t rows:4;
 			uint8_t colums:4;
-			union {
-				uint8_t byte;
-				struct {
-					uint8_t ascii:1;
-					uint8_t readback:1;
-					uint8_t vscroll:1;
-					uint8_t font14:1;
-					uint8_t res:4;
-				};
-			} features;
+			uint8_t ascii:1;
+			uint8_t readback:1;
+			uint8_t vscroll:1;
+			uint8_t font14:1;
 		} ATTR_PACKED USB_DisplayFeature_t;
 
 		typedef struct {
 			uint8_t column:4;
 			uint8_t row:4;
 		} ATTR_PACKED USB_DisplayCursorPosition_t;
-		
+
 		typedef struct {
-			uint8_t data[4];
+			char chars[8];
 		} ATTR_PACKED USB_DisplayCharacters_t;
-		
-        
+
+		typedef struct {
+			uint32_t symbols;
+		} ATTR_PACKED USB_DisplaySymbols_t;
+
+
 	/* Macros: */
 		/** LED mask for the library LED driver, to indicate that the USB interface is not ready. */
 		#define LEDMASK_USB_NOTREADY      (0)

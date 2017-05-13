@@ -41,6 +41,8 @@
 
 		#include <LUFA/Drivers/USB/USB.h>
 
+		#include "Board/LCD.h"
+
 	/* Type Defines: */
 		/** Type define for the device configuration descriptor structure. This must be defined in the
 		 *  application code, as the configuration descriptor contains several sub-descriptors which
@@ -81,15 +83,46 @@
 		#define HID_IN_EPADDR             (ENDPOINT_DIR_IN | 1)
 
 		/** Size in bytes of each of the HID reporting IN endpoint. */
-		#define HID_EPSIZE                8
+		#define HID_EPSIZE                16
 
 	/* Enums: */
 		/** Enum for the HID report IDs used in the device. */
-		enum
-		{
+		enum {
 			HID_REPORTID_RemoteReport   = 0x10, /**< Report ID for the Remote report within the device. */
-			HID_REPORTID_DisplayReport  = 0x20, /**< Report ID for the Display report within the device. */
+			HID_REPORTID_ButtonsReport  = 0x20, /**< Report ID for the Buttons report within the device. */
+			HID_REPORTID_DisplayReport  = 0x30, /**< Report ID for the Display report within the device. */
 		} HID_Report_IDs;
+
+		enum {
+			HID_REMOTEREPORT_protocol = 0x00,
+			HID_REMOTEREPORT_address,
+			HID_REMOTEREPORT_command,
+			HID_REMOTEREPORT_flags,
+		} HID_RemoteReport_USAGEs;
+
+		enum {
+			HID_BUTTONREPORT_power = 0x00,
+			HID_BUTTONREPORT_source,
+			HID_BUTTONREPORT_program,
+			HID_BUTTONREPORT_presetp,
+			HID_BUTTONREPORT_presetn,
+			HID_BUTTONREPORT_volumen,
+			HID_BUTTONREPORT_volumep,
+			HID_BUTTONREPORT_ubs,
+			HID_BUTTONREPORT_repeat,
+			HID_BUTTONREPORT_next,
+			HID_BUTTONREPORT_play,
+			HID_BUTTONREPORT_stop,
+			HID_BUTTONREPORT_previous,
+			HID_BUTTONREPORT_MAX
+		} HID_ButtonReport_USAGEs;
+
+		enum {
+			HID_DISPLAYSUBID_features = 0x01,
+			HID_DISPLAYSUBID_cursorpos,
+			HID_DISPLAYSUBID_charreport,
+			HID_DISPLAYSUBID_symbolreport,
+		} HID_DisplayReport_SUBIDs;
 
 	/* Function Prototypes: */
 		uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,

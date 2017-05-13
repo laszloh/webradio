@@ -4,3 +4,9 @@
 [submodule "AVR/lufa_ui/lib/irmp"]
 	path = AVR/lufa_ui/lib/irmp
 	url = https://github.com/svn2github/irmp.git
+[submodule "PC/lib/hidapi"]
+	path = PC/lib/hidapi
+	url = git://github.com/signal11/hidapi.git
+[submodule "PC/cython-hidapi"]
+	path = PC/cython-hidapi
+	url = https://github.com/trezor/cython-hidapi.git

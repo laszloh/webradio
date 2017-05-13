@@ -48,8 +48,10 @@
 
 volatile uint16_t isrcnt = 0;
 
+static char *itoh (char * buf, uint8_t digits, uint16_t number);
+
 /** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
-static uint8_t PrevHIDReportBuffer[MAX(sizeof(USB_KeyboardReport_Data_t), sizeof(USB_MouseReport_Data_t))];
+static uint8_t PrevHIDReportBuffer[HID_EPSIZE];
 
 /** LUFA HID Class driver interface configuration and state information. This structure is
  *  passed to all HID Class driver functions, so that multiple instances of the same class
@@ -190,61 +192,78 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          void* ReportData,
                                          uint16_t* const ReportSize)
 {
-	bool force;
+	bool force = false;
+	IRMP_DATA data;
 
-	if ((*ReportID & 0xF0)  == HID_REPORTID_DisplayReport) {
-		// generate a display report
-		if(ReportType == HID_REPORT_ITEM_Feature) {
-			switch((*ReportID & 0x0F)) {
-				case 0x01:
-				{
-					USB_DisplayFeature_t* r = (USB_DisplayFeature_t*) ReportData;
-					*ReportSize = sizeof(USB_DisplayFeature_t);
+	if(ReportType == HID_REPORT_ITEM_Feature && (*ReportID & 0xF0) == HID_REPORTID_DisplayReport) {
+		switch((*ReportID & 0x0F)) {
+			case 0x01:
+			{
+				USB_DisplayFeature_t* r = (USB_DisplayFeature_t*) ReportData;
+				*ReportSize = sizeof(USB_DisplayFeature_t);
 
-					r->rows = 1;
-					r->colums = 8;
-					r->features.byte = 0x0F;
-				}
-					break;
-				case 0x02:
-				{
-					USB_DisplayCursorPosition_t* r = (USB_DisplayCursorPosition_t*) ReportData;
-					*ReportSize = sizeof(USB_DisplayCursorPosition_t);
-
-					r->row = 1;
-					r->column = LCD_GetCursor();
-				}
-					break;
-				case 0x03:
-				{
-					USB_DisplayCharacters_t* r = (USB_DisplayCharacters_t*) ReportData;
-					*ReportSize = sizeof(USB_DisplayCharacters_t);
-
-					r->data[0] = 'H';
-					r->data[1] = 'e';
-					r->data[2] = 'W';
-					r->data[3] = 'o';
-				}
-					break;
-				default:
-					break;
+				r->colums = 8;
+				r->ascii = 1;
+				r->font14 = 1;
+				r->vscroll = 0;
 			}
-			return true;
+			break;
+#if 0
+			case 0x02:
+			{
+				USB_DisplayCursorPosition_t* r = (USB_DisplayCursorPosition_t*) ReportData;
+				*ReportSize = sizeof(USB_DisplayCursorPosition_t);
+
+				r->row = 1;
+				r->column = LCD_GetCursor();
+			}
+			break;
+
+			case 0x03:
+			{
+				USB_DisplayCharacters_t* r = (USB_DisplayCharacters_t*) ReportData;
+				*ReportSize = sizeof(USB_DisplayCharacters_t);
+
+				memcpy(r->chars, "Hlo wrld", 8);
+				for(uint8_t i=SYM_USB;i<SYM_MAX;i++) {
+					r->symbols = LCD
+				}
+			}
+			break;
+#endif
+
+			default:
+				break;
 		}
+		return true;
 	}
 
-	// generate a remote report
-	USB_RemoteReport_Data_t *remoteReport = (USB_RemoteReport_Data_t*)ReportData;
 
-	if(Buttons_GetStatus(BUTTONS_ADC_VOLP))
-		remoteReport->bits.volup = 1;
-	else if(Buttons_GetStatus(BUTTONS_ADC_VOLN))
-		remoteReport->bits.voldown = -1;
+	if(!(*ReportID)) {
+		// find a report ID to return
+		if(irmp_get_data(&data))
+			*ReportID = HID_REPORTID_RemoteReport;
+		else
+			*ReportID = HID_REPORTID_ButtonsReport;
+	}
 
-	remoteReport->numpad = 2;
+	switch(*ReportID) {
+		case HID_REPORTID_RemoteReport:
+			memcpy(ReportData, &data, sizeof(IRMP_DATA));
+			*ReportSize = sizeof(IRMP_DATA);
+			force = true;
+			break;
 
-	*ReportSize = sizeof(USB_RemoteReport_Data_t);
-	*ReportID = HID_REPORTID_RemoteReport;
+		case HID_REPORTID_ButtonsReport:
+			{
+				buttons_t data;
+				data = Buttons_All_GetStatus();
+				memcpy(ReportData, &data, sizeof(buttons_t));
+				*ReportSize = 6;
+			}
+			break;
+	}
+
 	return force;
 }
 
@@ -262,6 +281,51 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const void* ReportData,
                                           const uint16_t ReportSize)
 {
+	if((ReportID & 0xF0) != HID_REPORTID_DisplayReport)
+		return;
+
+	// we only process character reports
+	switch(ReportID & 0x0F) {
+		case 0x03:
+		{
+			// sanity check
+			if(ReportSize != sizeof(USB_DisplayCharacters_t)) {
+				char buf[3];
+				itoh(buf, 2, ReportSize);
+				LCD_PutString_P(PSTR("3 0x") ,0);
+				LCD_PutString(buf, 4);
+				return;
+			}
+			USB_DisplayCharacters_t *r = (USB_DisplayCharacters_t*)ReportData;
+
+			LCD_PutString(r->chars, 0);
+		}
+		break;
+
+		case 0x04:
+		{
+			// sanity check
+#if 0
+			if(ReportSize != sizeof(USB_DisplayCharacters_t)) {
+				char buf[3];
+				itoh(buf, 2, ReportSize);
+				LCD_PutString_P(PSTR("4 0x") ,0);
+				LCD_PutString(buf, 4);
+				return;
+			}
+#endif
+			USB_DisplaySymbols_t *r = (USB_DisplaySymbols_t*)ReportData;
+
+			for(uint8_t i=SYM_CDROM;i<SYM_MAX;i++) {
+				bool en = (r->symbols & (1UL << i));
+				LCD_SetSymbol(i, en);
+			}
+		}
+		break;
+
+		default:
+			break;
+	}
 }
 
 void ShiftLeftByOne(uint64_t *arr, int len)
@@ -279,21 +343,6 @@ void ShiftLeftByOne(uint64_t *arr, int len)
 			arr[i] <<= 1;
 		done = 0;
 	}
-
-#if 0
-    int i;
-	uint8_t carry = 0, x = 0;
-    for (i = 0;  i < len;  ++i) {
-		if(carry) {
-			arr[i] |= carry;
-			x = 1;
-		}
-		carry = (arr[i] & 0x8000) ? 0x01 : 0x00;
-		if (!x)
-			arr[i] <<= 1;
-		x = 0;
-    }
-#endif
 }
 
 void ParseCommand(unsigned char c)
@@ -316,9 +365,5 @@ static char *itoh (char * buf, uint8_t digits, uint16_t number)
 
 void IMRP_Task(void)
 {
-	IRMP_DATA irmp_data;
-	char buf[5];
 
-	if (irmp_get_data (&irmp_data)) {
-	}
 }

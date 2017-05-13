@@ -43,32 +43,39 @@
 #define __INCLUDE_FROM_BUTTONS_H
 #include "Buttons.h"
 
-#ifndef CONCAT
+#define BUTTONS_PHY_POWER		(1UL << (PORTB6))
+#define BUTTONS_PHY_SOURCE		(1UL << (PORTB5))
+#define BUTTONS_PHY_PROGRAM		(1UL << (PORTB4))
+#define BUTTONS_PHY_PHYSICAL	(BUTTONS_PHY_POWER | BUTTONS_PHY_SOURCE | BUTTONS_PHY_PROGRAM)
 
-#endif
+#define ADC_DELTA	3
+#define PRESETP		0
+#define PRESETN		1
+#define VOLN		2
+#define VOLP		3
+#define DBB			4
+#define REP			5
+#define SKIPP		6
+#define PLAY		7
+#define STOP		8
+#define SKIPN		9
 
-#define CONCAT(A,B)			A ## B
-#define EXPAND_CONCAT(A,B)  CONCAT(A, B)
+#define BUTTONS_ADC_PRESETP	(1UL << (ADC_DELTA+PRESETP))
+#define BUTTONS_ADC_PRESETN	(1UL << (ADC_DELTA+PRESETN))
+#define BUTTONS_ADC_VOLN	(1UL << (ADC_DELTA+VOLN))
+#define BUTTONS_ADC_VOLP	(1UL << (ADC_DELTA+VOLP))
+#define BUTTONS_ADC_DBB		(1UL << (ADC_DELTA+DBB))
+#define BUTTONS_ADC_REP		(1UL << (ADC_DELTA+REP))
+#define BUTTONS_ADC_SKIPP	(1UL << (ADC_DELTA+SKIPP))
+#define BUTTONS_ADC_PLAY	(1UL << (ADC_DELTA+PLAY))
+#define BUTTONS_ADC_STOP	(1UL << (ADC_DELTA+STOP))
+#define BUTTONS_ADC_SKIPN	(1UL << (ADC_DELTA+SKIPN))
+#define BUTTONS_ADC			(BUTTONS_ADC_PRESETP | BUTTONS_ADC_PRESETN | BUTTONS_ADC_VOLN | BUTTONS_ADC_VOLP | \
+							BUTTONS_ADC_DBB | BUTTONS_ADC_REP | BUTTONS_ADC_SKIPP | BUTTONS_ADC_PLAY | \
+							BUTTONS_ADC_STOP | BUTTONS_ADC_SKIPN)
 
-#define ARGN(N,LIST)		EXPAND_CONCAT(ARG_,N) LIST
-#define ARG_0(A0, ...)		(A0)
-#define ARG_1(A0,A1, ...)	(A0+A1)
-#define ARG_2(A0,A1,A2, ...)	(A0+A1+A2)
-#define ARG_3(A0,A1,A2,A3, ...)	(A0+A1+A2+A3)
-#define ARG_4(A0,A1,A2,A3,A4, ...)		(A0+A1+A2+A3+A4)
-#define ARG_5(A0,A1,A2,A3,A4,A5, ...)	(A0+A1+A2+A3+A4+A5)
-#define ARG_6(A0,A1,A2,A3,A4,A5,A6, ...)		(A0+A1+A2+A3+A4+A5+A6)
-#define ARG_7(A0,A1,A2,A3,A4,A5,A6,A7, ...)		(A0+A1+A2+A3+A4+A5+A6+A7)
-#define ARG_8(A0,A1,A2,A3,A4,A5,A6,A7,A8, ...)		(A0+A1+A2+A3+A4+A5+A6+A7+A8)
-#define ARG_9(A0,A1,A2,A3,A4,A5,A6,A7,A8,A9, ...)	(A0+A1+A2+A3+A4+A5+A6+A7+A8+A9)
-#define ARG_10(A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10, ...)	(A0+A1+A2+A3+A4+A5+A6+A7+A8+A9+A10)
 
-#define RVCC			3900
-#define RESISTOR_LIST	(680,470,470,470,820,820,1200,1500,2200,3300,UINT16_MAX)
-#define ADCRES			256
-
-#define ADCVAL(n)		ADCRES*(1-RVCC/(RVCC+ARGN(n,RESISTOR_LIST)))
-#define THRESHOLD(n,m)	(ADCVAL(n)+ADCVAL(m))/2
+#define MAX_CHECKS			10
 
 typedef struct _port{
 	uint8_t State[MAX_CHECKS];
@@ -81,19 +88,6 @@ static volatile uint16_t adckey_state;
 static volatile uint16_t adckey_changedstate;
 
 static const uint8_t adc_thresholds[] PROGMEM = {
-#if 0
-	THRESHOLD(SKIPN, 10),
-	THRESHOLD(STOP, SKIPN),
-	THRESHOLD(PLAY, STOP),
-	THRESHOLD(SKIPP, PLAY),
-	THRESHOLD(REP, SKIPP),
-	THRESHOLD(DBB, REP),
-	THRESHOLD(VOLP, DBB),
-	THRESHOLD(VOLN, VOLP),
-	THRESHOLD(PRESETN, VOLN),
-	THRESHOLD(PRESETP, PRESETN),
-	0
-#endif
 	224,
 	185,
 	168,
@@ -128,7 +122,7 @@ void Buttons_Debounce(void)
 	uint8_t adc;
 
 	// Buttons are pulled low, so invert the logic
-	portb.State[Index] = PINB ^ (BUTTONS_POWER | BUTTONS_SOURCE | BUTTONS_PROGRAM);
+	portb.State[Index] = PINB ^ (BUTTONS_PHY_POWER | BUTTONS_PHY_SOURCE | BUTTONS_PHY_PROGRAM);
 	Index++;
 	if(Index >= MAX_CHECKS)
 		Index = 0;
@@ -158,58 +152,53 @@ void Buttons_Init(void)
 		.samples = 1,
 	};
 
-	DDRB &= ~(BUTTONS_POWER | BUTTONS_SOURCE | BUTTONS_PROGRAM);
-	PORTB |= BUTTONS_POWER | BUTTONS_SOURCE | BUTTONS_PROGRAM;
+	DDRB &= ~(BUTTONS_PHY_POWER | BUTTONS_PHY_SOURCE | BUTTONS_PHY_PROGRAM);
+	PORTB |= BUTTONS_PHY_POWER | BUTTONS_PHY_SOURCE | BUTTONS_PHY_PROGRAM;
 
 	adc_init();
 	adc_index = adc_register_channel(adc_chan);
 }
 
-bool Buttons_GetStatus(uint32_t button)
+buttons_t Buttons_All_GetStatus(void)
 {
-	if(button & BUTTONS_PHYSICAL)
-		return (portb.debounceState & (button & BUTTONS_PHYSICAL)) ? true : false;
-	else {
-		bool ret;
-		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-			ret = (adckey_state & (button >> ADC_DELTA)) ? true : false;
-		}
-		return ret;
-	}
+	buttons_t ret;
+
+	ret.raw = 0x0000;
+	ret.btn.power = (portb.debounceState & BUTTONS_PHY_POWER) ? 0x01 : 0x00;
+	ret.btn.source = (portb.debounceState & BUTTONS_PHY_SOURCE) ? 0x01 : 0x00;
+	ret.btn.program = (portb.debounceState & BUTTONS_PHY_PROGRAM) ? 0x01 : 0x00;
+
+	ret.raw |= (adckey_state << ADC_DELTA);
+
+	return ret;
 }
 
-bool Buttons_Pressed(uint32_t button)
+buttons_t Buttons_All_Pressed(void)
 {
-	if(button & BUTTONS_PHYSICAL)
-		return ((portb.changedState & portb.debounceState) & (button & BUTTONS_PHYSICAL)) ? true : false;
-	else {
-		bool ret;
-		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-			ret = ((adckey_changedstate & adckey_state) & (button >> ADC_DELTA)) ? true : false;
-		}
-		return ret;
-	}
+	buttons_t ret;
+
+	ret.raw = 0x0000;
+	ret.btn.power = (portb.changedState & portb.debounceState & BUTTONS_PHY_POWER) ? 0x01 : 0x00;
+	ret.btn.source = (portb.changedState & portb.debounceState & BUTTONS_PHY_SOURCE) ? 0x01 : 0x00;
+	ret.btn.program = (portb.changedState & portb.debounceState & BUTTONS_PHY_PROGRAM) ? 0x01 : 0x00;
+
+	ret.raw |= ((adckey_changedstate & adckey_state) << ADC_DELTA);
+
+	return ret;
 }
 
-bool Buttons_Released(uint32_t button)
+buttons_t Buttons_All_Released(void)
 {
-	if(button & BUTTONS_PHYSICAL)
-		return ((portb.changedState & (~portb.debounceState)) & (button & BUTTONS_PHYSICAL)) ? true : false;
-	else {
-		bool ret;
-		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-			ret = ((adckey_changedstate & (~adckey_state)) & (button >> ADC_DELTA)) ? true : false;
-		}
-		return ret;
-	}
+	buttons_t ret;
+
+	ret.raw = 0x0000;
+	ret.btn.power = (portb.changedState & (~portb.debounceState) & BUTTONS_PHY_POWER) ? 0x01 : 0x00;
+	ret.btn.source = (portb.changedState & (~portb.debounceState) & BUTTONS_PHY_SOURCE) ? 0x01 : 0x00;
+	ret.btn.program = (portb.changedState & (~portb.debounceState) & BUTTONS_PHY_PROGRAM) ? 0x01 : 0x00;
+
+	ret.raw |= ((adckey_changedstate & (~adckey_state)) << ADC_DELTA);
+
+	return ret;
+
 }
 
-uint16_t get_key_press(void)
-{
-	return adckey_changedstate;
-}
-
-uint16_t get_key_state(void)
-{
-	return adckey_state;
-}

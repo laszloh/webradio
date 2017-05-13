@@ -59,60 +59,40 @@
 			#error Do not include this file directly. Include LUFA/Drivers/Board/Buttons.h instead.
 		#endif
 
-	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			/** Button mask for the first button on the board. */
-			#define BUTTONS_POWER		(1UL << (PORTB6))
-			#define BUTTONS_SOURCE		(1UL << (PORTB5))
-			#define BUTTONS_PROGRAM		(1UL << (PORTB4))
-			#define BUTTONS_PHYSICAL	(BUTTONS_POWER | BUTTONS_SOURCE | BUTTONS_PROGRAM)
+	/* Typedef: */
+		typedef struct {
+			union {
+				uint16_t raw;
+				struct {
+					uint8_t power:1;
+					uint8_t source:1;
+					uint8_t program:1;
+					uint8_t presetp:1;
+					uint8_t presetn:1;
+					uint8_t voln:1;
+					uint8_t volp:1;
+					uint8_t dbb:1;
+					uint8_t rep:1;
+					uint8_t skipp:1;
+					uint8_t play:1;
+					uint8_t stop:1;
+					uint8_t skipn:1;
+				} btn;
+			};
+		} buttons_t;
 
-			#define ADC_DELTA	8
-			#define PRESETP		0
-			#define PRESETN		1
-			#define VOLN		2
-			#define VOLP		3
-			#define DBB			4
-			#define REP			5
-			#define SKIPP		6
-			#define PLAY		7
-			#define STOP		8
-			#define SKIPN		9
-
-			#define BUTTONS_ADC_PRESETP	(1UL << (ADC_DELTA+PRESETP))
-			#define BUTTONS_ADC_PRESETN	(1UL << (ADC_DELTA+PRESETN))
-			#define BUTTONS_ADC_VOLN	(1UL << (ADC_DELTA+VOLN))
-			#define BUTTONS_ADC_VOLP	(1UL << (ADC_DELTA+VOLP))
-			#define BUTTONS_ADC_DBB		(1UL << (ADC_DELTA+DBB))
-			#define BUTTONS_ADC_REP		(1UL << (ADC_DELTA+REP))
-			#define BUTTONS_ADC_SKIPP	(1UL << (ADC_DELTA+SKIPP))
-			#define BUTTONS_ADC_PLAY	(1UL << (ADC_DELTA+PLAY))
-			#define BUTTONS_ADC_STOP	(1UL << (ADC_DELTA+STOP))
-			#define BUTTONS_ADC_SKIPN	(1UL << (ADC_DELTA+SKIPN))
-			#define BUTTONS_ADC			(BUTTONS_ADC_PRESETP | BUTTONS_ADC_PRESETN | BUTTONS_ADC_VOLN | BUTTONS_ADC_VOLP | \
-										 BUTTONS_ADC_DBB | BUTTONS_ADC_REP | BUTTONS_ADC_SKIPP | BUTTONS_ADC_PLAY | \
-										 BUTTONS_ADC_STOP | BUTTONS_ADC_SKIPN)
-
-
-			#define MAX_CHECKS			10
-
-		/* Inline Functions: */
+	/* Functions: */
 		#if !defined(__DOXYGEN__)
 
 			void Buttons_Init(void);
 
 			void Buttons_Debounce(void);
 
-			bool Buttons_GetStatus(uint32_t button);
+			buttons_t Buttons_All_GetStatus(void);
 
-			bool Buttons_Pressed(uint32_t button);
+			buttons_t Buttons_All_Pressed(void);
 
-			bool Buttons_Released(uint32_t button);
-
-			uint16_t get_key_press(void);
-
-			uint16_t get_key_state(void);
-
+			buttons_t Buttons_All_Released(void);
 
 		#endif
 
